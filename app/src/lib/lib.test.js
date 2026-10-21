@@ -20,6 +20,9 @@ test('표기 해석', () => {
   assert.equal(interpret('수련회2').kind, 'full');
   assert.deepEqual(interpret('6(1)').moves, { 6: 1 });
   assert.deepEqual(interpret('사랑하는 삶1/6(1)').moves, { 6: 1 });
+  // 행사명 뒤 '(5)'는 임장 교사 표시라 시수와 무관: 교시만 읽고 교시 바꿈으로 보지 않는다
+  assert.deepEqual([interpret('독서감상문쓰기대회6(5)').periods, interpret('독서감상문쓰기대회6(5)').moves], [[6], undefined]);
+  assert.deepEqual(interpret('동아리활동5-6(5)').periods, [5, 6]);
   assert.deepEqual(interpret('사랑하는 삶1/6(1)').periods, [1]);
   assert.deepEqual(interpret('영어듣기평가1-3(학년별)').periods, [1, 2, 3]);
   assert.equal(interpret('★월요일 시간표 운영★').kind, 'tt');
