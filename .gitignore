@@ -1,3 +1,6 @@
 .superpowers/
 *.xlsx
 __pycache__/
+node_modules/
+.impeccable/review/
+.impeccable/build/

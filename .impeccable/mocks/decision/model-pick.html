@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;font-family:"Noto Sans KR",sans-serif;background:#1E2A4A;color:#17202F;display:flex;padding:22px}
+.cover{width:250px;color:#E9EEF6;padding:26px 22px;display:flex;flex-direction:column;gap:22px}
+.cover h1{font-size:22px;font-weight:900;line-height:1.3;color:#fff}
+.cover .yr{font-size:44px;font-weight:900;color:#7FA7D9;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+.cover p{font-size:13px;color:#B4C1D8;line-height:1.6}
+.page{flex:1;background:#fff;border-radius:4px 12px 12px 4px;position:relative;padding:40px 64px 40px 92px;
+ background-image:linear-gradient(#fff 0 0),repeating-linear-gradient(#fff 0 35px,#E9EEF6 35px 36px);}
+.page:before{content:"";position:absolute;left:66px;top:0;bottom:0;border-left:2px solid #C8102E;opacity:.55}
+.page h2{font-size:28px;font-weight:900;letter-spacing:-.5px}
+.page .sub{color:#56637A;font-size:15px;margin:6px 0 30px}
+.tabs{position:absolute;right:-14px;top:60px;display:flex;flex-direction:column;gap:8px}
+.tabs b{writing-mode:vertical-rl;background:#7FA7D9;color:#fff;padding:14px 6px;border-radius:0 6px 6px 0;font-size:13px}
+.list{display:flex;flex-direction:column;gap:0}
+.row{display:grid;grid-template-columns:70px 1fr 260px 160px;align-items:center;gap:20px;padding:22px 0;border-bottom:1px solid #C9D5E8}
+.row .n{font-size:30px;font-weight:900;color:#7FA7D9;font-variant-numeric:tabular-nums}
+.row h3{font-size:21px;font-weight:900}
+.row p{font-size:13.5px;color:#56637A;margin-top:4px}
+.st{font-size:13px;line-height:1.7}
+.st .r{color:#C8102E;font-weight:700}
+.btn{border:1.5px solid #1E2A4A;border-radius:6px;padding:10px 0;text-align:center;font-weight:700;font-size:14px}
+.btn.p{background:#1E2A4A;color:#fff}
+.foot{position:absolute;left:92px;bottom:30px;font-size:12.5px;color:#56637A}
+</style></head><body>
+<aside class="cover"><h1>교무자동화도구 박스</h1><div class="yr">2027</div><p>명지중학교<br>학년도 작업 수첩</p><p>이 브라우저에 저장됨<br>학사일정 · 시간표 27개 반</p></aside>
+<main class="page">
+ <div class="tabs"><b>학사일정</b><b>시수</b><b>범교과</b><b>반배정</b></div>
+ <h2>올해 할 일</h2><p class="sub">한 장씩 넘기며 채워요. 학사일정을 만들면 다음 장에 이어집니다.</p>
+ <div class="list">
+  <div class="row"><span class="n">01</span><div><h3>연간 학사일정 자동생성</h3><p>작년 시트 → 새해 달력 같은 주·요일</p></div><div class="st">2026 학사일정 불러옴 · 205건 배치<br><span class="r">확인 필요 13건</span></div><div class="btn p">이어서 하기</div></div>
+  <div class="row"><span class="n">02</span><div><h3>시수계산</h3><p>반별·과목별·요일별 손실과 확보 시수</p></div><div class="st">시간표 27개 반<br><span class="r">해석 필요 10건</span></div><div class="btn p">이어서 하기</div></div>
+  <div class="row"><span class="n">03</span><div><h3>범교과 필수교육 편성</h3><p>필수교육을 행사·교과·창체에 연결</p></div><div class="st">12 / 18 연결<br>성교육 4시간 부족</div><div class="btn p">이어서 하기</div></div>
+  <div class="row"><span class="n">04</span><div><h3>반배정</h3><p>같은 반 금지·함께·성비·성적 균형</p></div><div class="st">학생 명단 아직 없음</div><div class="btn">명단 올리기</div></div>
+ </div>
+ <p class="foot">데이터는 이 컴퓨터 브라우저에만 저장돼요</p>
+</main>
+</body></html>

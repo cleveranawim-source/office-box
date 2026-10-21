@@ -1,0 +1,619 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-21T11:54:54+00:00",
+  "title": "Design System: 교무자동화도구 박스",
+  "extensions": {
+    "colorMeta": {
+      "rail": {
+        "role": "primary",
+        "displayName": "Felt Rail Green",
+        "canonical": "#1f4d3a",
+        "tonalRamp": [
+          "#000f08",
+          "#022f1f",
+          "#214f3c",
+          "#44715d",
+          "#66957f",
+          "#8bbba4",
+          "#addec6",
+          "#cafce4"
+        ]
+      },
+      "rail-deep": {
+        "role": "primary",
+        "displayName": "Deep Felt",
+        "canonical": "#163a2b",
+        "tonalRamp": [
+          "#000f07",
+          "#082e20",
+          "#2a4e3e",
+          "#4b6f5e",
+          "#6d9381",
+          "#92b8a5",
+          "#b4dcc8",
+          "#d1fae5"
+        ]
+      },
+      "rail-ink": {
+        "role": "neutral",
+        "displayName": "Rail Chalk",
+        "canonical": "#eef4ef",
+        "tonalRamp": [
+          "#080c09",
+          "#232824",
+          "#424642",
+          "#626863",
+          "#858b86",
+          "#aab0ab",
+          "#cdd3ce",
+          "#eaf0eb"
+        ]
+      },
+      "rail-mute": {
+        "role": "neutral",
+        "displayName": "Rail Sage",
+        "canonical": "#b3cbbc",
+        "tonalRamp": [
+          "#010f06",
+          "#182b20",
+          "#364b3e",
+          "#566c5f",
+          "#799082",
+          "#9db5a6",
+          "#c0d8c9",
+          "#ddf6e6"
+        ]
+      },
+      "board": {
+        "role": "neutral",
+        "displayName": "Board",
+        "canonical": "#fafaf7",
+        "tonalRamp": [
+          "#0b0b09",
+          "#272724",
+          "#454543",
+          "#666664",
+          "#898987",
+          "#aeaeab",
+          "#d1d1ce",
+          "#efefec"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#262626",
+          "#454545",
+          "#666666",
+          "#898989",
+          "#aeaeae",
+          "#d1d1d1",
+          "#eeeeee"
+        ]
+      },
+      "ink": {
+        "role": "primary",
+        "displayName": "Timetable Ink",
+        "canonical": "#1a1d1a",
+        "tonalRamp": [
+          "#090c09",
+          "#242724",
+          "#434643",
+          "#646764",
+          "#868a86",
+          "#abafab",
+          "#ced2ce",
+          "#ecf0eb"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink 2",
+        "canonical": "#3f4a42",
+        "tonalRamp": [
+          "#050e08",
+          "#1f2922",
+          "#3d4840",
+          "#5e6a61",
+          "#818d84",
+          "#a5b2a8",
+          "#c8d5cb",
+          "#e5f3e9"
+        ]
+      },
+      "mute": {
+        "role": "neutral",
+        "displayName": "Mute",
+        "canonical": "#5b6b60",
+        "tonalRamp": [
+          "#030e07",
+          "#1c2a21",
+          "#3a493f",
+          "#5b6b60",
+          "#7d8e82",
+          "#a2b3a7",
+          "#c4d6ca",
+          "#e2f4e7"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "canonical": "#d6d9d0",
+        "tonalRamp": [
+          "#0a0c07",
+          "#252721",
+          "#44463f",
+          "#65675f",
+          "#888a82",
+          "#acafa7",
+          "#cfd2c9",
+          "#edf0e7"
+        ]
+      },
+      "line-2": {
+        "role": "neutral",
+        "displayName": "Line 2",
+        "canonical": "#e8eae3",
+        "tonalRamp": [
+          "#0b0c07",
+          "#262722",
+          "#444640",
+          "#656761",
+          "#888a84",
+          "#adafa8",
+          "#d0d2cb",
+          "#edefe8"
+        ]
+      },
+      "wash": {
+        "role": "neutral",
+        "displayName": "Wash",
+        "canonical": "#f2f4ee",
+        "tonalRamp": [
+          "#0b0c08",
+          "#262723",
+          "#444641",
+          "#656762",
+          "#888a85",
+          "#adafa9",
+          "#d0d2cc",
+          "#edefe9"
+        ]
+      },
+      "t1-violet": {
+        "role": "secondary",
+        "displayName": "Tool 01 Violet",
+        "canonical": "#6d3fc0",
+        "tonalRamp": [
+          "#100029",
+          "#300065",
+          "#51199d",
+          "#7144c5",
+          "#946aee",
+          "#b49bfb",
+          "#d4c8ff",
+          "#efebff"
+        ]
+      },
+      "t1-wash": {
+        "role": "secondary",
+        "displayName": "Tool 01 Wash",
+        "canonical": "#f1ebfb",
+        "tonalRamp": [
+          "#0d0913",
+          "#282430",
+          "#47424f",
+          "#686371",
+          "#8c8695",
+          "#b0abba",
+          "#d4cedd",
+          "#f1ebfb"
+        ]
+      },
+      "t2-blue": {
+        "role": "secondary",
+        "displayName": "Tool 02 Blue",
+        "canonical": "#2563c9",
+        "tonalRamp": [
+          "#000925",
+          "#022258",
+          "#013d97",
+          "#2260c6",
+          "#4786ef",
+          "#80aefb",
+          "#b7d2ff",
+          "#e6efff"
+        ]
+      },
+      "t2-wash": {
+        "role": "secondary",
+        "displayName": "Tool 02 Wash",
+        "canonical": "#e9f0fc",
+        "tonalRamp": [
+          "#070b13",
+          "#22272f",
+          "#40454f",
+          "#606671",
+          "#838994",
+          "#a8aeba",
+          "#cbd1dd",
+          "#e8effb"
+        ]
+      },
+      "t3-green": {
+        "role": "secondary",
+        "displayName": "Tool 03 Green",
+        "canonical": "#1e7f3a",
+        "tonalRamp": [
+          "#001003",
+          "#01300f",
+          "#095421",
+          "#177a35",
+          "#449f58",
+          "#6bc57c",
+          "#8fea9e",
+          "#c9ffd0"
+        ]
+      },
+      "t3-wash": {
+        "role": "secondary",
+        "displayName": "Tool 03 Wash",
+        "canonical": "#e7f4ea",
+        "tonalRamp": [
+          "#050e07",
+          "#1f2922",
+          "#3e4840",
+          "#5e6961",
+          "#818d84",
+          "#a5b2a8",
+          "#c8d5cb",
+          "#e5f2e8"
+        ]
+      },
+      "t4-yellow": {
+        "role": "secondary",
+        "displayName": "Tool 04 Yellow",
+        "canonical": "#f2a900",
+        "tonalRamp": [
+          "#120900",
+          "#352201",
+          "#5c3f07",
+          "#855e13",
+          "#b37e10",
+          "#e2a01b",
+          "#fcc774",
+          "#feecd1"
+        ]
+      },
+      "t4-wash": {
+        "role": "secondary",
+        "displayName": "Tool 04 Wash",
+        "canonical": "#fdf4dc",
+        "tonalRamp": [
+          "#100a00",
+          "#2d2613",
+          "#4c4431",
+          "#6d6651",
+          "#918973",
+          "#b6ad97",
+          "#d9d1b9",
+          "#f7eed6"
+        ]
+      },
+      "rubric": {
+        "role": "tertiary",
+        "displayName": "Rubric Red",
+        "canonical": "#c8102e",
+        "tonalRamp": [
+          "#1e0002",
+          "#4e020b",
+          "#820c1c",
+          "#bb1b2e",
+          "#ec414b",
+          "#fe8482",
+          "#fcc0bc",
+          "#fee9e7"
+        ]
+      },
+      "rubric-wash": {
+        "role": "tertiary",
+        "displayName": "Rubric Wash",
+        "canonical": "#fdeef0",
+        "tonalRamp": [
+          "#11080a",
+          "#2e2325",
+          "#4d4243",
+          "#6f6264",
+          "#938587",
+          "#b8aaac",
+          "#dbcdcf",
+          "#f9eaec"
+        ]
+      },
+      "ok": {
+        "role": "tertiary",
+        "displayName": "Confirmed Green",
+        "canonical": "#1f6b3f",
+        "tonalRamp": [
+          "#001005",
+          "#013016",
+          "#08532c",
+          "#2d774a",
+          "#539b6c",
+          "#78c190",
+          "#9be5b2",
+          "#c6ffd6"
+        ]
+      },
+      "short-wash": {
+        "role": "neutral",
+        "displayName": "Shortfall Grey",
+        "canonical": "#e6e8e2",
+        "tonalRamp": [
+          "#0b0c08",
+          "#262723",
+          "#444641",
+          "#656762",
+          "#888a84",
+          "#adafa9",
+          "#d0d2cc",
+          "#edefe9"
+        ]
+      },
+      "hol-ink": {
+        "role": "neutral",
+        "displayName": "Holiday Ink",
+        "canonical": "#1f4d3a",
+        "tonalRamp": [
+          "#000f08",
+          "#022f1f",
+          "#214f3c",
+          "#44715d",
+          "#66957f",
+          "#8bbba4",
+          "#addec6",
+          "#cafce4"
+        ]
+      },
+      "excluded": {
+        "role": "neutral",
+        "displayName": "Excluded Grey",
+        "canonical": "#9aa39b",
+        "tonalRamp": [
+          "#070d08",
+          "#212922",
+          "#404741",
+          "#606961",
+          "#838c84",
+          "#a8b1a9",
+          "#cad4cb",
+          "#e8f2e9"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The home question only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Tool page titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Timetable column titles."
+      },
+      "title-sm": {
+        "displayName": "Title small",
+        "purpose": "Step and panel titles."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default working text."
+      },
+      "body-sm": {
+        "displayName": "Body small",
+        "purpose": "Table cells, cell descriptions, field labels."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Chips, header bands, calendar day numbers."
+      },
+      "numeric": {
+        "displayName": "Numeric",
+        "purpose": "Aligned counts, hours, dates, period numbers."
+      }
+    },
+    "textures": [
+      {
+        "name": "holiday-hatch",
+        "value": "repeating-linear-gradient(135deg, #e2ede6 0 5px, #f3f8f4 5px 10px)",
+        "purpose": "Holiday cells on the calendar, with hol-ink text."
+      }
+    ],
+    "shadows": [
+      {
+        "name": "toast",
+        "value": "0 1px 2px rgb(26 29 26 / 0.06), 0 6px 18px -6px rgb(26 29 26 / 0.14)",
+        "purpose": "Transient bottom-center toast only."
+      },
+      {
+        "name": "shortfall-underline",
+        "value": "inset 0 -2px 0 #1a1d1a",
+        "purpose": "Computed shortfall table cells (with short-wash background)."
+      },
+      {
+        "name": "focus-ring-input",
+        "value": "0 0 0 3px rgb(37 99 201 / 0.18)",
+        "purpose": "Input focus, with ink border."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "All transitions and entrances."
+      },
+      {
+        "name": "state",
+        "value": "150-200ms",
+        "purpose": "Hover background and press nudge."
+      },
+      {
+        "name": "fade-in",
+        "value": "400ms, opacity 0.4 to 1 with 4px rise",
+        "purpose": "Route entrance of the home board."
+      },
+      {
+        "name": "toast-rise",
+        "value": "350ms, 8px rise",
+        "purpose": "Toast entrance."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "none",
+        "purpose": "All animation and transition removed under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "stack",
+        "value": "1100px"
+      },
+      {
+        "name": "mobile",
+        "value": "760px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Default action: paper fill, 1.5px ink border.",
+      "html": "<button class=\"ds-btn\">시수 보기 <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;gap:6px;border-radius:6px;padding:8px 14px;font:700 14px/1.5 'Pretendard Variable',Pretendard,sans-serif;border:1.5px solid #1a1d1a;background:#fff;color:#1a1d1a;cursor:pointer;transition:background .15s cubic-bezier(.16,1,.3,1),transform .15s cubic-bezier(.16,1,.3,1)}.ds-btn:hover{background:#f2f4ee}.ds-btn:active{transform:translateY(1px)}.ds-btn:focus-visible{outline:2px solid #2563c9;outline-offset:2px}"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "One per decision area: next step on home, run or export in tools.",
+      "html": "<button class=\"ds-btn-primary\">엑셀로 내려받기</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;gap:6px;border-radius:6px;padding:8px 14px;font:700 14px/1.5 'Pretendard Variable',Pretendard,sans-serif;border:1.5px solid #1a1d1a;background:#1a1d1a;color:#fff;cursor:pointer;transition:background .15s cubic-bezier(.16,1,.3,1),transform .15s}.ds-btn-primary:hover{background:#2e332e}.ds-btn-primary:active{transform:translateY(1px)}.ds-btn-primary:focus-visible{outline:2px solid #2563c9;outline-offset:2px}"
+    },
+    {
+      "name": "Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Sheet link and form fields.",
+      "html": "<input class=\"ds-input\" placeholder=\"구글시트 링크 붙여넣기\">",
+      "css": ".ds-input{border:1.5px solid #d6d9d0;border-radius:6px;background:#fff;padding:7px 10px;min-height:36px;font:14px/1.5 'Pretendard Variable',Pretendard,sans-serif;color:#1a1d1a;transition:border-color .15s}.ds-input:hover{border-color:#b9beb2}.ds-input:focus{border-color:#1a1d1a;outline:none;box-shadow:0 0 0 3px rgb(37 99 201 / .18)}.ds-input::placeholder{color:#7d877f}"
+    },
+    {
+      "name": "Status Chips",
+      "kind": "chip",
+      "refersTo": "chip-need",
+      "description": "Line-shape status: need (rubric dashed), ok (solid), warn (computed shortfall), off (excluded).",
+      "html": "<span class=\"ds-chip ds-need\">정할 것 14건</span> <span class=\"ds-chip ds-ok\">조건 모두 지킴</span> <span class=\"ds-chip ds-warn\">기준에 모자란 교육 5개</span> <span class=\"ds-chip ds-off\">제외</span>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;border-radius:4px;padding:2px 8px;font:700 12.5px/1.5 'Pretendard Variable',Pretendard,sans-serif;white-space:nowrap}.ds-need{border:1.5px dashed #c8102e;color:#c8102e;background:#fff}.ds-ok{border:1.5px solid #1f6b3f;color:#1f6b3f;background:#fff}.ds-warn{border:1.5px solid #1a1d1a;color:#1a1d1a;background:#e6e8e2}.ds-off{border:1.5px solid #9aa39b;color:#5b6b60;text-decoration:line-through}"
+    },
+    {
+      "name": "Rail Navigation",
+      "kind": "nav",
+      "refersTo": "rail-nav-item",
+      "description": "Green rail with numbered tools and tool-color tabs.",
+      "html": "<nav class=\"ds-rail\"><a href=\"#\">도구 고르기</a><a href=\"#\" aria-current=\"page\"><span class=\"ds-n\">01</span><span class=\"ds-tab\" style=\"background:#6d3fc0\"></span>학사일정</a><a href=\"#\"><span class=\"ds-n\">02</span><span class=\"ds-tab\" style=\"background:#2563c9\"></span>시수계산</a></nav>",
+      "css": ".ds-rail{display:flex;flex-direction:column;gap:2px;background:#1f4d3a;padding:18px;width:232px;font:14px/1.5 'Pretendard Variable',Pretendard,sans-serif}.ds-rail a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;color:#eef4ef;text-decoration:none;transition:background .2s cubic-bezier(.16,1,.3,1)}.ds-rail a:hover{background:#163a2b}.ds-rail a[aria-current=page]{background:#fafaf7;color:#1a1d1a;font-weight:700}.ds-rail a:focus-visible{outline:2px solid #2563c9;outline-offset:2px}.ds-n{width:18px;font-size:12px;color:#b3cbbc;font-variant-numeric:tabular-nums}a[aria-current=page] .ds-n{color:#5b6b60}.ds-tab{width:8px;height:20px;border-radius:2px}"
+    },
+    {
+      "name": "Timetable Column",
+      "kind": "card",
+      "refersTo": "tool-band",
+      "description": "Ink-gap grid cell with a tool-color header band.",
+      "html": "<div class=\"ds-tt\"><section class=\"ds-col\"><div class=\"ds-hd\" style=\"background:#2563c9\">02 시수계산<span>9개 반</span></div><div class=\"ds-cell\"><h2>시수계산</h2><p>휴일·고사·행사로 빠지는 수업을 반별로 세요.</p></div></section><section class=\"ds-col\"><div class=\"ds-hd\" style=\"background:#f2a900;color:#1a1d1a\">04 반배정<span>120명</span></div><div class=\"ds-cell\"><h2>반배정</h2><p>조건을 지키며 반을 나눠요.</p></div></section></div>",
+      "css": ".ds-tt{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px;border:2px solid #1a1d1a;border-radius:6px;overflow:hidden;background:#1a1d1a;font-family:'Pretendard Variable',Pretendard,sans-serif}.ds-col{background:#fff}.ds-hd{padding:10px 16px;font-weight:700;font-size:13px;color:#fff;display:flex;justify-content:space-between;border-bottom:2px solid #1a1d1a}.ds-hd span{font-weight:500;font-variant-numeric:tabular-nums}.ds-cell{padding:20px 18px 18px}.ds-cell h2{margin:0 0 10px;font-size:22px;font-weight:800;letter-spacing:-.02em}.ds-cell p{margin:0;font-size:13.5px;line-height:1.6;color:#3f4a42}"
+    },
+    {
+      "name": "Period Bar",
+      "kind": "custom",
+      "refersTo": "period-bar-cell-large",
+      "description": "Signature 7-cell period bar, filled with the owning tool color.",
+      "html": "<span class=\"ds-pbar\" role=\"img\" aria-label=\"1-3, 5-6교시\" style=\"--c:#2563c9\"><i class=\"on\">1</i><i class=\"on\">2</i><i class=\"on\">3</i><i>4</i><i class=\"on\">5</i><i class=\"on\">6</i><i>7</i></span>",
+      "css": ".ds-pbar{display:inline-grid;grid-template-columns:repeat(7,1fr);gap:2px;width:240px}.ds-pbar i{height:22px;border-radius:2px;background:#e8eae3;font:normal 700 12px/22px 'Pretendard Variable',Pretendard,sans-serif;text-align:center;color:#4f5a52;font-variant-numeric:tabular-nums}.ds-pbar i.on{background:var(--c,#1a1d1a);color:#fff}"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "custom",
+      "refersTo": "button",
+      "description": "Ink-outlined segments with rubric-dashed decision counts.",
+      "html": "<div class=\"ds-seg\" role=\"group\"><button aria-pressed=\"true\">1학기 <span class=\"ds-count\">6</span></button><button aria-pressed=\"false\">2학기 <span class=\"ds-count\">8</span></button></div>",
+      "css": ".ds-seg{display:inline-flex;border:1.5px solid #1a1d1a;border-radius:6px;overflow:hidden;background:#fff}.ds-seg button{border:0;border-right:1.5px solid #1a1d1a;background:none;padding:6px 14px;font:600 13.5px/1.5 'Pretendard Variable',Pretendard,sans-serif;color:#1a1d1a;cursor:pointer;display:inline-flex;gap:6px;align-items:center}.ds-seg button:last-child{border-right:0}.ds-seg button[aria-pressed=true]{background:#1a1d1a;color:#fff}.ds-seg button:not([aria-pressed=true]):hover{background:#f2f4ee}.ds-seg button:focus-visible{outline:2px solid #2563c9;outline-offset:-3px}.ds-count{min-width:20px;padding:0 5px;border-radius:4px;font-size:11px;line-height:16px;text-align:center;background:#fff;color:#c8102e;border:1.5px dashed #c8102e;font-weight:800}"
+    }
+  ],
+  "narrative": {
+    "northStar": "교실 시간표판 (The Classroom Timetable Board)",
+    "overview": "The app is a felt-green bulletin rail holding a white board, and everything on the board is read the way a teacher reads a timetable: day columns, period cells, ink-ruled grids. Schedules, hours and class lists sit in cells separated by 2px ink rules; each of the four tools owns one subject-paper color that appears only on its header band and in its data. Density is Operate-mode: 13-14px body, tabular numerals, tables and calendars that fill the board, no decoration between the user and the data.\n\nState is carried by line shape before color: a solid line means confirmed, a dashed rubric line means a person must decide, a strike line means excluded. Computed shortfalls get their own tool-neutral mark (grey wash, ink text, ink underline) so the rubric red never means two things. The board is flat; depth comes from the green rail framing a pale board and from ink borders, not from shadows. The rejected default is the grey SaaS sidebar over a card grid.",
+    "keyCharacteristics": [
+      "Green rail (232px) framing a pale board with a 10px corner; board content on white paper cells.",
+      "Grids drawn as 2px gaps over an ink background inside a 2px ink border.",
+      "Four tool colors used only for header bands, period-bar fills and tool data highlights.",
+      "One rubric red, dashed, reserved for human decisions, unresolved notations and rule violations.",
+      "The 7-cell period bar is the shared signature across every tool.",
+      "Pretendard throughout, tabular numerals wherever numbers align."
+    ],
+    "rules": [
+      {
+        "name": "The One Rubric Rule",
+        "body": "Rubric red, always dashed, marks only what a person must decide, unresolved notations, and rule violations. Nothing computed, decorative or branded uses it.",
+        "section": "colors"
+      },
+      {
+        "name": "The Shortfall Is Not a Decision Rule",
+        "body": "A computed shortfall uses Shortfall Grey with ink text and a 2px ink underline (cells) or a 1.5px ink border (chips). It is tool-neutral and never red or yellow.",
+        "section": "colors"
+      },
+      {
+        "name": "The Subject Paper Rule",
+        "body": "Tool colors appear only on that tool's header band, rail tab, period-bar fills and in-tool data highlights; never on generic buttons, text or chrome.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "Every number that can sit above another number (counts, hours, dates, period numbers) uses tabular numerals.",
+        "section": "typography"
+      },
+      {
+        "name": "The Keep-All Rule",
+        "body": "Korean text wraps with word-break keep-all; headings balance, paragraphs wrap pretty.",
+        "section": "typography"
+      },
+      {
+        "name": "The Ink Not Shadow Rule",
+        "body": "Separate and contain with ink borders (1.5-2px) and 2px ink-gap grids, not with shadows or tinted cards.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do draw every grid as 2px gaps over ink inside a 2px ink border.",
+      "Do pair every status color with a line shape (solid, dashed, strike) or a border style; color alone never carries state.",
+      "Do reuse the 7-cell period bar whenever periods are shown, filled with the owning tool's color.",
+      "Do keep a single primary button per decision area; on home it marks only the next step.",
+      "Do use tabular numerals for all aligned numbers.",
+      "Do keep the destructive data reset isolated in the rail behind a confirm."
+    ],
+    "donts": [
+      "Don't use rubric red for computed results, branding, or a tool color.",
+      "Don't mark computed shortfalls in red or yellow; use Shortfall Grey with an ink underline or border.",
+      "Don't spread tool colors onto generic buttons, links or chrome.",
+      "Don't separate content with drop shadows or floating cards.",
+      "Don't fall back to a grey SaaS sidebar with a card grid."
+    ]
+  }
+}
