@@ -260,7 +260,7 @@ function Interpret({ list, overrides, setOverrides }) {
     const k = norm(x.text), cur = overrides[k] || {};
     const next = { ...cur, ...part };
     if (!next.kind && next.grades === undefined) { const o = { ...overrides }; delete o[k]; setOverrides(o); return; }
-    if (!next.kind) next.kind = { full: 'full', periods: 'periods', off: 'off' }[x.auto.kind] || 'none';
+    if (!next.kind) next.kind = { full: 'full', periods: 'periods', off: 'off', move: 'move' }[x.auto.kind] || 'none';
     if (next.kind === 'periods' && !next.periods) next.periods = x.auto.periods || [];
     setOverrides({ ...overrides, [k]: next });
   };
@@ -279,7 +279,7 @@ function Interpret({ list, overrides, setOverrides }) {
                 <tr key={k} style={x.it.kind === 'unknown' ? { outline: '1.5px dashed var(--rubric)', outlineOffset: -2 } : undefined}>
                   <td className="l">{x.text}</td><td>{x.dates.length}</td>
                   <td className="l" style={x.it.kind === 'unknown' ? { color: 'var(--rubric)', fontWeight: 600 } : undefined}>{x.it.why}{x.it.grades ? <small>{x.it.grades.join(',')}학년만</small> : null}</td>
-                  <td>{x.it.kind === 'periods' ? <PeriodBar periods={x.it.periods} color={T.color} /> : x.it.kind === 'full' || x.it.kind === 'off' ? <PeriodBar periods={[1, 2, 3, 4, 5, 6, 7]} color={x.it.kind === 'off' ? '#7d877f' : T.color} /> : '–'}</td>
+                  <td>{x.it.kind === 'periods' || x.it.kind === 'move' ? <PeriodBar periods={[...x.it.periods, ...Object.keys(x.it.moves || {}).map(Number)]} color={T.color} /> : x.it.kind === 'full' || x.it.kind === 'off' ? <PeriodBar periods={[1, 2, 3, 4, 5, 6, 7]} color={x.it.kind === 'off' ? '#7d877f' : T.color} /> : '–'}</td>
                   <td>{locked ? <span className="hint">고정</span> : (
                     <select className="select sm" value={o.kind || ''} onChange={(e) => save(x, { kind: e.target.value || undefined })} aria-label={`${x.text} 해석 바꾸기`}>
                       <option value="">자동</option><option value="periods">교시 지정</option><option value="full">종일</option><option value="none">영향 없음</option><option value="off">휴업(전체)</option>

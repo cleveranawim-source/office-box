@@ -18,7 +18,8 @@ test('표기 해석', () => {
   assert.equal(interpret('(2,3학년) 중간고사').exam, true);
   assert.equal(interpret('부장회의1').kind, 'none');
   assert.equal(interpret('수련회2').kind, 'full');
-  assert.equal(interpret('6(1)').kind, 'unknown');
+  assert.deepEqual(interpret('6(1)').moves, { 6: 1 });
+  assert.deepEqual(interpret('사랑하는 삶1/6(1)').moves, { 6: 1 });
   assert.deepEqual(interpret('사랑하는 삶1/6(1)').periods, [1]);
   assert.deepEqual(interpret('영어듣기평가1-3(학년별)').periods, [1, 2, 3]);
   assert.equal(interpret('★월요일 시간표 운영★').kind, 'tt');
@@ -56,7 +57,8 @@ function fakeSheet() {
     ['', '', '학생상담주간(2~6)', '현충일 추념식1', '(3학년) 재량휴업일', '(2,3학년) 중간고사', '★월요일 시간표 운영★', ''],
     ['', '', '', '', '', '', '', ''],
     ['', 2, ...days(16)],
-    ['', '', '', '학교폭력예방교육1/성교육2', '', '', '', ''],
+    ['', '', '', '학교폭력예방교육1/성교육2', '새로운 변화1', '', '', ''],
+    ['', '', '', '', '6(1)', '', '', ''],
   ];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), '2026 학사일정');
@@ -71,14 +73,16 @@ test('가짜 시트: 읽기 → 배치 → 시수 → 필수교육', () => {
   const texts = res.events.map((e) => e.text);
   assert.ok(texts.includes('현충일 추념식1'), '공휴일 낱말이 든 행사도 옮긴다');
   assert.ok(texts.includes('학생상담주간(1~5)'));
-  const slots = () => [0, 1, 2, 3, 4].map(() => [, 'A', 'B', 'C']);
+  const slots = () => [0, 1, 2, 3, 4].map(() => [, 'A', 'B', 'C', 'D', 'E', 'F']);
   const classes = [{ name: '1-1', grade: 1, slots: slots() }, { name: '3-1', grade: 3, slots: slots() }];
   const R = computeHours(old, classes, {}, 17);
   const lost = (c, d) => R.losses.filter((x) => x.c === c && x.d === d);
   assert.equal(lost('1-1', '2026-03-04').length, 0, '3학년 재량휴업은 1학년과 무관');
-  assert.equal(lost('3-1', '2026-03-04').length, 3);
+  assert.equal(lost('3-1', '2026-03-04').length, 6);
   assert.deepEqual(lost('1-1', '2026-03-03').map((x) => x.p), [1]);
-  assert.equal(lost('3-1', '2026-03-05').filter((x) => x.type === '고사').length, 3);
+  assert.equal(lost('3-1', '2026-03-05').filter((x) => x.type === '고사').length, 6);
+  // 6(1): 1교시는 행사, 1교시 과목(A)은 6교시에 하고 6교시 과목(F)만 빠진다
+  assert.deepEqual(lost('1-1', '2026-03-18').map((x) => [x.s, x.p, x.type]), [['F', 6, '시간표 바꿈']]);
   assert.ok(lost('1-1', '2026-03-06').every((x) => x.type === '시간표 바꿈'));
   const links = autoLinks(old, DEFAULT_REQUIRED, [1, 2, 3]);
   assert.equal(links.find((l) => l.itemId === 'sex').amount, 1, '한 칸에 둘이면 제 조각 교시만');

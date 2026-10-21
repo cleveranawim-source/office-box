@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import { DEFAULT_REQUIRED } from './lib/required.js';
 import { DEFAULT_WEIGHTS } from './lib/assign.js';
 
-const KEY = 'office-box/v1';
+export const KEY = 'office-box/v1';
 
 export const initialState = () => ({
   schedule: null, // { source, result }
@@ -19,7 +19,11 @@ function load() {
     if (!raw) return initialState();
     const saved = JSON.parse(raw);
     const base = initialState();
-    return { ...base, ...saved, hours: { ...base.hours, ...saved.hours }, required: { ...base.required, ...saved.required }, assign: { ...base.assign, ...saved.assign } };
+    const required = { ...base.required, ...saved.required };
+    // 새로 생긴 필수교육은 예전 저장본에도 덧붙인다 (선생님이 고친 기준은 그대로)
+    const have = new Set(required.items.map((i) => i.id));
+    required.items = [...required.items, ...DEFAULT_REQUIRED.filter((i) => !have.has(i.id))];
+    return { ...base, ...saved, hours: { ...base.hours, ...saved.hours }, required, assign: { ...base.assign, ...saved.assign } };
   } catch {
     return initialState();
   }

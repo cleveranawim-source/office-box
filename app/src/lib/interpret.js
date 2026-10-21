@@ -6,7 +6,7 @@ const STAFF_RE = /교직원|부장회의|평정회|연수|정담회|총회|학�
 const DAYNUM_RE = /수련회|수련활동/; // 뒤 숫자가 교시가 아니라 ‘며칠째’
 const FULL_RE = /고사|체육한마당|스포츠데이|역사탐방|나들이|체험학습|현장체험|축제/;
 const TT_RE = /([월화수목금])요일\s*시간표/;
-const SWAP_RE = /^\d\(\d\)$/;
+const SWAP_RE = /^(\d)\((\d)\)$/; // '6(1)' = 6교시에 1교시 수업
 const TIME_RE = /\d{1,2}:\d{2}/;
 const GRADE_RE = /\(?\s*([1-6](?:\s*,\s*[1-6])*)\s*학년\s*\)?/;
 
@@ -20,11 +20,13 @@ export function interpret(text) {
   const tt = t.match(TT_RE);
   if (tt) return { kind: 'tt', wd: '월화수목금'.indexOf(tt[1]), grades, why: `${tt[1]}요일 시간표로 운영`, fixed: true };
   if (TIME_RE.test(t)) return { kind: 'none', grades, why: '수업 전후 시간' };
-  if (SWAP_RE.test(t)) return { kind: 'unknown', grades, why: '교시 바꿈 표기 — 뜻을 정해 주세요' };
   let full = false, exam = false;
+  const moves = {};
   const periods = new Set(), unknown = [];
   t.split(/[,/]/).map((s) => s.trim()).filter(Boolean).forEach((raw) => {
-    if (STAFF_RE.test(raw) || SWAP_RE.test(raw)) return;
+    const sw = raw.match(SWAP_RE);
+    if (sw) { moves[+sw[1]] = +sw[2]; return; }
+    if (STAFF_RE.test(raw)) return;
     if (DAYNUM_RE.test(raw)) { full = true; return; }
     const it = raw.replace(/\([^)]*[^\d)][^)]*\)\s*$/, '').trim(); // (학년별)·(스포츠데이)·(~13) 같은 꼬리 괄호
     let m = it.match(/(\d)\s*(?:-\s*(\d))?\s*(?:\(\d\))?$/);
@@ -38,7 +40,9 @@ export function interpret(text) {
     unknown.push(it);
   });
   if (full) return { kind: 'full', grades, exam, why: exam ? '고사 (종일)' : '종일 행사' };
-  if (periods.size) { const p = [...periods].sort((a, b) => a - b); return { kind: 'periods', periods: p, grades, why: fmtPeriods(p) + '교시' }; }
+  const mv = Object.keys(moves).length ? { moves, why: Object.entries(moves).map(([a, b]) => `${a}교시에 ${b}교시 수업`).join(', ') } : null;
+  if (periods.size) { const p = [...periods].sort((a, b) => a - b); return { kind: 'periods', periods: p, grades, ...mv, why: fmtPeriods(p) + '교시' + (mv ? ` · ${mv.why}` : '') }; }
+  if (mv) return { kind: 'move', periods: [], grades, ...mv };
   if (unknown.length) return { kind: 'unknown', grades, why: '교시 표기가 없어요' };
   return { kind: 'none', grades, why: '학생 수업과 무관' };
 }
@@ -48,6 +52,7 @@ export function interpWith(overrides, text) {
   const a = interpret(text), o = overrides?.[norm(text)];
   if (!o) return a;
   const grades = o.grades !== undefined ? o.grades : a.grades;
+  if (o.kind === 'move') return { ...a, grades };
   if (o.kind === 'off') return { kind: 'off', grades, why: '휴업 (직접 정함)', manual: true };
   if (o.kind === 'full') return { kind: 'full', grades, exam: /고사/.test(text), why: '종일 (직접 정함)', manual: true };
   if (o.kind === 'periods') return { kind: 'periods', periods: o.periods || [], grades, why: fmtPeriods(o.periods || []) + '교시 (직접 정함)', manual: true };

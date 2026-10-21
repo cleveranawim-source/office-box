@@ -242,6 +242,7 @@ table.t { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 
 .ev[aria-pressed='true'] .pbar i.on { background: #fff; }
 .ev.need { outline: 1.5px dashed var(--rubric); outline-offset: -1.5px; color: var(--rubric); font-weight: 600; }
 .ev.need[aria-pressed='true'] { color: #fff; }
+.ev.range::after { content: ' ✎'; color: var(--t1); }
 .ev.diff { text-decoration: underline dotted #b07cf0; text-underline-offset: 3px; }
 .refonly { display: block; font-size: 11px; color: #8a938c; text-decoration: line-through; padding: 1px 4px; }
 

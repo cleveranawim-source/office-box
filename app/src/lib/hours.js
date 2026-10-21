@@ -6,6 +6,9 @@ import { weeklyHours } from './timetable.js';
 const blank = () => ({ gross: 0, off: 0, exam: 0, event: 0, swapOut: 0, got: 0, mid: 0, fin: 0, after: 0 });
 
 /** sch: {weeks, events:[{date,text}]}, classes: 시간표, overrides: 표기 해석 바꾸기, base: 학기당 기준 주수 */
+/** 다른 교시 자리로 옮겨서 하는(그래서 빠지지 않는) 교시 */
+const recoveredOf = (info, used) => new Set(Object.entries(info.moves).filter(([a]) => !info.lost[a] && (!used || used[a])).map(([, b]) => +b));
+
 export function computeHours(sch, classes, overrides, base) {
   const byDate = {};
   sch.events.forEach((e) => (byDate[e.date] ??= []).push(e));
@@ -15,10 +18,11 @@ export function computeHours(sch, classes, overrides, base) {
   const grades = [...new Set(classes.map((c) => c.grade))].sort();
   const day = {}, exams = {};
   [1, 2].forEach((sem) => semDays[sem].forEach((d) => grades.forEach((g) => {
-    const info = { off: null, ttWd: wdIndex(d), full: null, exam: false, lost: {} };
+    const info = { off: null, ttWd: wdIndex(d), full: null, exam: false, lost: {}, moves: {} };
     (byDate[d] || []).forEach((e) => {
       const it = interpWith(overrides, e.text);
       if (!applies(it, g)) return;
+      if (it.moves) Object.assign(info.moves, it.moves);
       if (it.kind === 'off') info.off = info.off || e.text;
       else if (it.kind === 'tt') info.ttWd = it.wd;
       else if (it.kind === 'full') { info.full = info.full || e.text; info.exam = info.exam || it.exam; }
@@ -46,11 +50,19 @@ export function computeHours(sch, classes, overrides, base) {
         const lose = (s, p, type, why) => losses.push({ c: c.name, s, sem, d, p, type, why });
         if (info.off) { own.forEach((s, p) => { if (s) { stats[c.name][s][sem].off++; lose(s, p, '휴일·휴업', info.off); } }); return; }
         if (info.ttWd !== wdIndex(d)) own.forEach((s, p) => { if (s) { stats[c.name][s][sem].swapOut++; lose(s, p, '시간표 바꿈', `${DAYS[info.ttWd]}요일 시간표 운영`); } });
+        // '6(1)': 6교시 자리에서 1교시 과목 수업 → 행사로 빠진 1교시 과목은 되살리고 6교시 과목이 빠진다
+        const recovered = recoveredOf(info, used);
         used.forEach((s, p) => {
           if (!s || !stats[c.name][s]) return;
           const st = stats[c.name][s][sem];
           if (info.full) { st[info.exam ? 'exam' : 'event']++; lose(s, p, info.exam ? '고사' : '행사', info.full); return; }
-          if (info.lost[p]) { st.event++; lose(s, p, '행사', info.lost[p]); return; }
+          if (info.lost[p]) { if (!recovered.has(p)) { st.event++; lose(s, p, '행사', info.lost[p]); } return; }
+          const src = info.moves[p], moved = used[src];
+          if (src != null) {
+            st.swapOut++; lose(s, p, '시간표 바꿈', `${p}교시에 ${src}교시 수업`);
+            if (moved && stats[c.name][moved]) { stats[c.name][moved][sem].got++; stats[c.name][moved][sem][seg]++; }
+            return;
+          }
           st.got++; st[seg]++;
         });
       });
@@ -62,7 +74,8 @@ export function computeHours(sch, classes, overrides, base) {
     [1, 2].forEach((sem) => {
       dayList[g + '|' + sem] = semDays[sem].map((d) => {
         const i = day[g + '|' + d], mp = maxP[i.ttWd];
-        return { d, off: !!i.off, full: !!i.full, lostN: Object.keys(i.lost).filter((p) => +p <= mp).length, maxP: mp };
+        const rec = recoveredOf(i, null);
+        return { d, off: !!i.off, full: !!i.full, lostN: Object.keys(i.lost).filter((p) => +p <= mp && !rec.has(+p)).length, maxP: mp };
       });
     });
   });

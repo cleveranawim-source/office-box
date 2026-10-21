@@ -176,9 +176,9 @@ function Result({ result, source, onRebuild, update }) {
                         {(byDate[d] || []).map((e) => {
                           const it = interpret(e.text);
                           return (
-                            <button key={e.id} id={'ev-' + e.id} className={['ev', needsDecision(e) && 'need', cmpOn && e.cmp === 'diff' && 'diff'].filter(Boolean).join(' ')}
+                            <button key={e.id} id={'ev-' + e.id} className={['ev', needsDecision(e) && 'need', e.status === 'range' && 'range', cmpOn && e.cmp === 'diff' && 'diff'].filter(Boolean).join(' ')}
                               aria-pressed={sel === e.id} draggable onDragStart={(ev) => ev.dataTransfer.setData('text/plain', e.id)} onClick={() => setSel(sel === e.id ? null : e.id)}
-                              title={e.old ? `작년 ${md(e.old)}(${wdName(e.old)})` : '새로 넣은 행사'}>
+                              title={(e.old ? `작년 ${md(e.old)}(${wdName(e.old)})` : '새로 넣은 행사') + (e.status === 'range' ? ' · 괄호 속 날짜를 새해에 맞게 고침' : '')}>
                               {e.text}
                               {it.kind === 'periods' && <PeriodBar periods={it.periods} color={T.color} label={false} />}
                             </button>
@@ -210,6 +210,7 @@ function Result({ result, source, onRebuild, update }) {
           <div className="legend" style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--mute)' }}>
             <span className="mark"><span className="line dash" />정할 것: 공휴일 겹침, 재량휴업일</span>
             <span className="mark"><PeriodBar periods={[1, 2, 3]} color={T.color} label={false} />행사가 차지하는 교시</span>
+            <span className="mark"><span style={{ color: 'var(--t1)', fontWeight: 700 }}>✎</span>괄호 속 날짜를 새해에 맞게 고친 행사</span>
             {result.cmpOn && <span className="mark"><span className="line strike" />견준 안에만 있는 행사</span>}
           </div>
         </aside>
@@ -230,6 +231,7 @@ function Inspector({ e, holidays, onPatch, onMove, onRemove, onClose }) {
       {holidays[e.date] && <p className="hint">이 날은 {holidays[e.date]}이에요.</p>}
       <div className="barrow"><span>교시 · {it.why}</span><PeriodBar periods={it.kind === 'periods' ? it.periods : it.kind === 'full' || it.kind === 'off' ? [1, 2, 3, 4, 5, 6, 7] : []} color={it.kind === 'off' ? '#7d877f' : T.color} large /></div>
       {e.old && <p className="hint">작년에는 {md(e.old)}({wdName(e.old)})에 있었어요.</p>}
+      {e.status === 'range' && <p className="hint">✎ 괄호 속 날짜를 새해에 맞게 고쳤어요. 날짜가 아닌 괄호(교시·학년 등)라면 이름을 직접 바로잡아 주세요.</p>}
       {(e.status === 'conflict' || e.status === 'disc') && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {e.resolved ? <Ok>확인함</Ok> : <Need>정할 것</Need>}
@@ -282,7 +284,7 @@ function exportSchedule(result) {
   XLSX.utils.book_append_sheet(wb, ws, `${result.newYear} 학사일정`);
   const list = [['날짜', '요일', '구분', '내용', '작년 날짜', '확인']];
   Object.entries(result.holidays).forEach(([d, h]) => list.push([d, wdName(d), '휴일', h, '', '']));
-  result.events.forEach((e) => list.push([e.date, wdName(e.date), '행사', e.text, e.old, needsDecision(e) ? '정할 것' : e.resolved ? '확인함' : '']));
+  result.events.forEach((e) => list.push([e.date, wdName(e.date), '행사', e.text, e.old, needsDecision(e) ? '정할 것' : e.resolved ? '확인함' : e.status === 'range' ? '괄호 날짜 고침' : '']));
   list.splice(1, list.length, ...list.slice(1).sort((a, b) => a[0].localeCompare(b[0])));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(list), '행사 목록');
   downloadWorkbook(wb, `${result.newYear}_학사일정.xlsx`);
