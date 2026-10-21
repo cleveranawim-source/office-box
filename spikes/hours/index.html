@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>시수계산기 시험판</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="../../shared/schedule-sheet.js"></script>
+<style>
+:root{--bg:#f7f7f5;--card:#fff;--line:#dcdcd6;--ink:#222;--mute:#888;--acc:#1d4ed8;--bad:#b42318;--badbg:#fde2e1;--ok:#15803d;--warn:#f79009;--warnbg:#fff4e0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.45 "Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+header h1{font-size:16px;margin:0}
+.spike{background:#fff3cd;border-radius:4px;padding:2px 8px;font-size:12px}
+.badge{background:#eef;border-radius:12px;padding:3px 10px}
+button{font:inherit;padding:5px 12px;border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer}
+button.primary{background:var(--acc);color:#fff;border-color:var(--acc)}
+button:disabled{opacity:.5;cursor:default}
+input[type=text],input[type=number],select{font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:#fff}
+.wrap{max-width:1100px;margin:16px auto;padding:0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.card h2{font-size:15px;margin:0 0 10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.row label{min-width:120px;color:#444}
+.hint{color:var(--mute);font-size:12px;margin:4px 0 0}
+.err{color:var(--bad);font-weight:600;white-space:pre-wrap}
+.okmsg{color:var(--ok);font-weight:600}
+.url{flex:1;min-width:260px}
+.tabs{display:flex;gap:4px;margin:0 0 10px;flex-wrap:wrap}
+.tabs button{border-radius:6px 6px 0 0;border-bottom:none}
+.tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.tabs .cnt{background:var(--warn);color:#fff;border-radius:8px;padding:0 6px;margin-left:4px;font-size:11px}
+table.t{border-collapse:collapse;width:100%;background:#fff}
+.t th,.t td{border:1px solid var(--line);padding:4px 6px;text-align:center}
+.t th{background:#f0f0ec;font-weight:600;position:sticky;top:0}
+.t td.l,.t th.l{text-align:left}
+.t td.bad{background:var(--badbg);color:var(--bad);font-weight:600}
+.t td.good{color:var(--ok)}
+.t tr.sel td{background:#eef4ff}
+.t tr.click{cursor:pointer}
+.t tr.click:hover td{background:#f5f8ff}
+.t tr.unk td{background:var(--warnbg)}
+.t small{color:var(--mute)}
+.scroll{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:8px}
+.legend{font-size:12px;color:var(--mute);margin:6px 0}
+#result{display:none}
+</style></head>
+<body>
+<header>
+ <h1>시수계산기</h1><span class="spike">시험판</span>
+ <span id="hdrResult" style="display:none;gap:12px;align-items:center;flex-wrap:wrap">
+  <span class="badge" id="stat"></span>
+  <button id="xlsx" class="primary">엑셀로 내려받기</button>
+  <button id="back">← 설정으로</button>
+ </span>
+</header>
+
+<div class="wrap" id="setup">
+ <div class="card">
+  <h2>① 학사일정</h2>
+  <div class="row"><input type="text" class="url" id="schUrl" placeholder="학사일정 구글시트 링크"><button id="schLoad">불러오기</button></div>
+  <div class="row"><span>또는 파일:</span><input type="file" id="schFile" accept=".xlsx,.xls"></div>
+  <p class="hint">원래 쓰시는 주 단위 학사일정 시트나, <a href="../schedule/">학사일정 생성기</a>에서 내려받은 엑셀을 그대로 넣으면 돼요.</p>
+  <div class="row" id="schTabRow" style="display:none"><label>학사일정 탭</label><select id="schTab"></select><span class="hint" id="schInfo"></span></div>
+  <p class="err" id="schErr"></p>
+ </div>
+
+ <div class="card">
+  <h2>② 시간표 (반 × 요일·교시 → 과목)</h2>
+  <div class="row"><input type="text" class="url" id="ttUrl" placeholder="시간표 구글시트 링크"><button id="ttLoad">불러오기</button></div>
+  <div class="row"><span>또는 파일:</span><input type="file" id="ttFile" accept=".xlsx,.xls">
+   <button id="ttDemo">예시 시간표 쓰기</button><button id="ttTemplate">빈 양식 내려받기</button></div>
+  <p class="hint">첫 줄에 <b>반 | 월1 | 월2 … | 금7</b>, 아래로 <b>1-1, 1-2 …</b> 반마다 한 줄씩 과목 이름을 적은 양식이에요. 예시 시간표는 화면 확인용 가짜 데이터예요.</p>
+  <p id="ttInfo"></p>
+  <p class="err" id="ttErr"></p>
+ </div>
+
+ <div class="card">
+  <h2>③ 설정</h2>
+  <div class="row"><label>학기당 기준 주수</label><input type="number" id="baseWeeks" value="17" min="1" max="25" style="width:80px"><span class="hint">기준 시수 = 주당 시수 × 기준 주수 (중학교 34주 기준이면 학기당 17)</span></div>
+  <div class="row"><button class="primary" id="run" disabled>시수 계산하기</button></div>
+  <p class="err" id="runErr"></p>
+ </div>
+
+ <div class="card">
+  <h2>이 시험판이 하는 일</h2>
+  <p>학사일정의 휴일·휴업일·방학, 고사, 행사를 읽어 <b>반별·과목별로 수업이 몇 번 빠지는지</b> 세요.
+  <code>입학식1-4</code> → 1~4교시, <code>(2,3학년) 중간고사</code> → 2·3학년 종일, <code>★월요일 시간표 운영★</code> → 그날은 월요일 시간표,
+  <code>교직원…·부장회의</code> → 학생 수업과 무관처럼 해석해요. 해석하지 못한 표기는 <b>행사 해석</b> 탭에 모아 두고, 고르면 바로 다시 계산해요.</p>
+ </div>
+</div>
+
+<div class="wrap" id="result">
+ <div class="tabs" id="tabs">
+  <button data-tab="sum" class="on">반별 요약</button>
+  <button data-tab="cls">반 상세</button>
+  <button data-tab="wd">요일별 수업일수</button>
+  <button data-tab="ev">행사 해석<span class="cnt" id="unkCnt"></span></button>
+ </div>
+ <div id="pane"></div>
+</div>
+
+<script>
+// ---------- 행사 해석 ----------
+const STAFF_RE=/교직원|부장회의|평정회|연수|정담회|총회|학부모|보호자|상담주간|캠페인|마감|제출|임원수련회|예비소집|방과후|교생실습|건강검진|소변검사|기도회|수능감독|민방위|소방합동훈련|전시마당|생활기록부/;
+const DAYNUM_RE=/수련회|수련활동/;          // 뒤 숫자가 교시가 아니라 ‘며칠째’
+const FULL_RE=/고사|체육한마당|스포츠데이|역사탐방|나들이|체험학습|현장체험|축제/;
+const TT_RE=/([월화수목금])요일\s*시간표/;
+const SWAP_RE=/^\d\(\d\)$/;
+const TIME_RE=/\d{1,2}:\d{2}/;
+const GRADE_RE=/\(?\s*([1-6](?:\s*,\s*[1-6])*)\s*학년\s*\)?/;
+
+function interpret(text){
+ let t=text,grades=null;
+ const g=t.match(GRADE_RE);
+ if(g){grades=g[1].split(',').map(Number);t=t.replace(g[0],'').trim()}
+ if(HOLIDAY_RE.test(t)||DISC_RE.test(t)||/^방학$/.test(t))return{kind:'off',grades:null,why:'휴일·휴업·방학'};
+ if(/대학수학능력시험/.test(t))return{kind:'off',grades:null,why:'수능일 — 시험장이면 휴업 (아니면 바꾸기)'};
+ const tt=t.match(TT_RE);if(tt)return{kind:'tt',wd:'월화수목금'.indexOf(tt[1]),grades,why:`${tt[1]}요일 시간표로 운영`};
+ if(TIME_RE.test(t))return{kind:'none',grades,why:'수업 전후 시간'};
+ if(SWAP_RE.test(t))return{kind:'unknown',grades,why:'교시 바꿈 표기 — 뜻 확인 필요'};
+ let full=false,exam=false;const periods=new Set(),unknown=[];
+ t.split(/[,/]/).map(s=>s.trim()).filter(Boolean).forEach(raw=>{
+  if(STAFF_RE.test(raw)||SWAP_RE.test(raw))return;
+  if(DAYNUM_RE.test(raw)){full=true;return}
+  const it=raw.replace(/\([^)]*[^\d)][^)]*\)\s*$/,'').trim(); // (학년별)·(스포츠데이)·(~13) 같은 꼬리 괄호 제거
+  let m=it.match(/(\d)\s*(?:-\s*(\d))?\s*(?:\(\d\))?$/);
+  if(m&&/[가-힣A-Za-z]/.test(it)){
+   const a=+m[1],b=m[2]?+m[2]:a;
+   if(a>=1&&b<=8&&a<=b){for(let p=a;p<=b;p++)periods.add(p);return}
+  }
+  m=it.match(/\((\d)\)$/);
+  if(m){periods.add(+m[1]);return}
+  if(FULL_RE.test(it)){full=true;if(/고사/.test(it))exam=true;return}
+  unknown.push(it);
+ });
+ if(full)return{kind:'full',grades,exam,why:exam?'고사(종일)':'종일 행사'};
+ if(periods.size){const p=[...periods].sort((a,b)=>a-b);return{kind:'periods',periods:p,grades,why:p.join('·')+'교시'}}
+ if(unknown.length)return{kind:'unknown',grades,why:'교시 표기 없음'};
+ return{kind:'none',grades,why:'학생 수업과 무관'};
+}
+const OVERRIDE={}; // norm(text) → {kind:'full'|'periods'|'none', periods, grades}
+function interp(text){
+ const o=OVERRIDE[norm(text)],a=interpret(text);
+ if(!o)return a;
+ const grades=o.grades!==undefined?o.grades:a.grades;
+ if(o.kind==='off')return{kind:'off',grades:null,why:'휴업 (직접 지정)'};
+ if(o.kind==='full')return{kind:'full',grades,exam:/고사/.test(text),why:'종일 (직접 지정)'};
+ if(o.kind==='periods')return{kind:'periods',periods:o.periods,grades,why:o.periods.join('·')+'교시 (직접 지정)'};
+ return{kind:'none',grades,why:'영향 없음 (직접 지정)'};
+}
+const applies=(it,g)=>!it.grades||it.grades.includes(g);
+
+// ---------- 시간표 ----------
+let SCH=null,SCHWB=null,TT=null,R=null;
+function parseTimetable(wb){
+ const ws=wb.Sheets[wb.SheetNames[0]];
+ const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+ const h=rows.findIndex(r=>r.some(c=>String(c).trim()==='반'));
+ if(h<0)throw new Error('첫 열 머리글에 ‘반’이 있는 줄을 찾지 못했어요.');
+ const head=rows[h],cc=head.findIndex(c=>String(c).trim()==='반');
+ const cols=[];
+ head.forEach((c,i)=>{const m=String(c).match(/([월화수목금])\s*(\d)/);if(m)cols.push({i,wd:'월화수목금'.indexOf(m[1]),p:+m[2]})});
+ if(!cols.length)throw new Error('‘월1, 월2 … 금7’ 같은 머리글을 찾지 못했어요.');
+ const classes=[];
+ rows.slice(h+1).forEach(r=>{
+  const name=String(r[cc]).trim();if(!name)return;
+  const g=+(name.match(/^(\d)/)||[])[1];if(!g)return;
+  const slots=[[],[],[],[],[]];
+  cols.forEach(c=>{const s=String(r[c.i]??'').trim();if(s)slots[c.wd][c.p]=s});
+  classes.push({name,grade:g,slots});
+ });
+ if(!classes.length)throw new Error('반 줄을 찾지 못했어요. 반 이름은 1-1처럼 학년 숫자로 시작해야 해요.');
+ return classes;
+}
+// 예시용 가짜 시간표: 학년별 3반, 월6·화7·수6·목7·금6교시
+function demoTimetable(){
+ const per=[6,7,6,7,6];
+ const plan={1:{국어:4,수학:4,영어:4,사회:3,과학:4,기술가정:2,체육:3,음악:2,미술:2,도덕:1},
+  2:{국어:4,수학:4,영어:4,역사:3,과학:4,기술가정:2,체육:3,음악:1,미술:1,도덕:2,정보:1},
+  3:{국어:4,수학:4,영어:4,역사:3,과학:4,기술가정:2,체육:3,음악:1,미술:1,도덕:2,정보:1}};
+ const fixed={1:'주제선택',2:'선택',3:'선택'};
+ let seed=7;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;
+ const classes=[];
+ [1,2,3].forEach(g=>[1,2,3].forEach(n=>{
+  const pool=[];Object.entries(plan[g]).forEach(([s,k])=>{for(let i=0;i<k;i++)pool.push(s)});
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  const slots=[[],[],[],[],[]];
+  per.forEach((n2,wd)=>{for(let p=1;p<=n2;p++){
+   if((wd===1||wd===3)&&p===7)slots[wd][p]=fixed[g];
+   else if(wd===2&&p===6)slots[wd][p]='창체';
+   else slots[wd][p]=pool.pop();
+  }});
+  classes.push({name:`${g}-${n}`,grade:g,slots});
+ }));
+ return classes;
+}
+function timetableSheet(classes){
+ const head=['반'];for(const[wd,d]of['월','화','수','목','금'].entries())for(let p=1;p<=7;p++)head.push(d+p);
+ const rows=[head];
+ classes.forEach(c=>{const r=[c.name];for(let wd=0;wd<5;wd++)for(let p=1;p<=7;p++)r.push(c.slots[wd][p]||'');rows.push(r)});
+ return XLSX.utils.aoa_to_sheet(rows);
+}
+
+// ---------- 불러오기 ----------
+const $=id=>document.getElementById(id);
+async function loadInto(kind,getBuf){
+ const err=$(kind+'Err');err.textContent='';
+ try{
+  const wb=XLSX.read(await getBuf(),{type:'array',cellFormula:true});
+  if(kind==='sch')openSchedule(wb);else setTimetable(parseTimetable(wb),'불러온 시간표');
+ }catch(e){err.textContent=(kind==='sch'?'학사일정':'시간표')+'을(를) 읽지 못했어요: '+e.message+(/HTTP|xlsx/.test(e.message)?'\n구글시트 공유 설정이 ‘링크가 있는 모든 사용자 — 뷰어’인지 확인하거나 xlsx로 받아 올려 주세요.':'')}
+}
+$('schLoad').onclick=()=>loadInto('sch',()=>fetchSheet($('schUrl').value));
+$('schFile').onchange=e=>e.target.files[0]&&loadInto('sch',()=>e.target.files[0].arrayBuffer());
+$('ttLoad').onclick=()=>loadInto('tt',()=>fetchSheet($('ttUrl').value));
+$('ttFile').onchange=e=>e.target.files[0]&&loadInto('tt',()=>e.target.files[0].arrayBuffer());
+$('ttDemo').onclick=()=>setTimetable(demoTimetable(),'예시 시간표(가짜 데이터)');
+$('ttTemplate').onclick=()=>{const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,timetableSheet(demoTimetable()),'시간표');XLSX.writeFile(wb,'시간표_양식(예시).xlsx')};
+
+function openSchedule(wb){
+ const usable=wb.SheetNames.filter(n=>findLayout(wb.Sheets[n]).length);
+ if(!usable.length)throw new Error('“월 · 주 · 월~토” 주 단위 달력 모양의 탭을 찾지 못했어요.');
+ SCHWB=wb;
+ $('schTab').innerHTML=usable.map(n=>`<option>${n}</option>`).join('');
+ const plain=usable.filter(n=>!/빈|사본/.test(n));
+ $('schTab').value=(plain.length?plain:usable).slice().sort((a,b)=>(yearOf(b,wb.Sheets[b])||0)-(yearOf(a,wb.Sheets[a])||0))[0];
+ $('schTabRow').style.display='';
+ pickSchTab();
+}
+$('schTab').onchange=pickSchTab;
+function pickSchTab(){
+ const n=$('schTab').value,ws=SCHWB.Sheets[n];
+ const s=parseSheet(ws,yearOf(n,ws));
+ if(s.error){$('schInfo').textContent=s.error;SCH=null}
+ else{SCH=s;const c=k=>Object.keys(s.weeks).filter(w=>w.startsWith(k)).length;
+  $('schInfo').textContent=`${s.year}학년도 · 1학기 ${c('1-')}주 / 2학기 ${c('2-')}주 · 행사 ${s.events.length}건`}
+ ready();
+}
+function setTimetable(classes,label){
+ TT=classes;
+ const grades=[...new Set(classes.map(c=>c.grade))];
+ $('ttInfo').innerHTML=`<span class="okmsg">✓ ${label}</span> · ${grades.map(g=>`${g}학년 ${classes.filter(c=>c.grade===g).length}개 반`).join(', ')}`;
+ ready();
+}
+function ready(){$('run').disabled=!(SCH&&TT)}
+
+// ---------- 계산 ----------
+function compute(){
+ const base=+$('baseWeeks').value||17;
+ const byDate={};SCH.events.forEach(e=>(byDate[e.date]??=[]).push(e));
+ const semDays={1:[],2:[]};
+ Object.entries(SCH.weeks).forEach(([k,mon])=>{const s=+k[0];for(let i=0;i<5;i++)semDays[s].push(add(mon,i))});
+ semDays[1].sort();semDays[2].sort();
+ // 학년별 하루 정보
+ const grades=[...new Set(TT.map(c=>c.grade))];
+ const day={};       // g|date → {off,ttWd,full,exam,lost:{p:reason}}
+ const exams={};     // g|sem → {mid,fin}
+ [1,2].forEach(sem=>semDays[sem].forEach(d=>grades.forEach(g=>{
+  const info={off:null,ttWd:wdIndex(d),full:null,exam:false,lost:{}};
+  (byDate[d]||[]).forEach(e=>{
+   const it=interp(e.text);if(!applies(it,g))return;
+   if(it.kind==='off')info.off=info.off||e.text;
+   else if(it.kind==='tt')info.ttWd=it.wd;
+   else if(it.kind==='full'){info.full=info.full||e.text;info.exam=info.exam||it.exam}
+   else if(it.kind==='periods')it.periods.forEach(p=>info.lost[p]=info.lost[p]||e.text);
+   const ek=g+'|'+sem;exams[ek]??={};
+   if(/중간고사/.test(e.text)&&!exams[ek].mid)exams[ek].mid=d;
+   if(/기말고사/.test(e.text)&&!exams[ek].fin)exams[ek].fin=d;
+  });
+  day[g+'|'+d]=info;
+ })));
+ const stats={},losses=[],weekly={};
+ TT.forEach(c=>{
+  stats[c.name]={};weekly[c.name]={};
+  c.slots.forEach(ps=>ps.forEach(s=>{if(s)weekly[c.name][s]=(weekly[c.name][s]||0)+1}));
+  Object.keys(weekly[c.name]).forEach(s=>stats[c.name][s]={1:blank(),2:blank()});
+  [1,2].forEach(sem=>{
+   const ex=exams[c.grade+'|'+sem]||{};
+   semDays[sem].forEach(d=>{
+    const info=day[c.grade+'|'+d];
+    const own=c.slots[wdIndex(d)];       // 원래 그 요일 시간표 (계획)
+    own.forEach((s,p)=>{if(s)stats[c.name][s][sem].gross++});
+    const used=c.slots[info.ttWd];        // 실제 운영 시간표
+    const seg=ex.mid&&d<ex.mid?'mid':!ex.fin||d<ex.fin?'fin':'after';
+    if(info.off){own.forEach((s,p)=>{if(!s)return;stats[c.name][s][sem].off++;losses.push({c:c.name,s,sem,d,p,type:'휴일·휴업',why:info.off})});return}
+    if(info.ttWd!==wdIndex(d)){ // 다른 요일 시간표: 원래 과목은 빠지고 그 요일 과목이 들어옴
+     own.forEach((s,p)=>{if(s){stats[c.name][s][sem].swapOut++;losses.push({c:c.name,s,sem,d,p,type:'시간표 변경',why:`${DAYS[info.ttWd]}요일 시간표 운영`})}});
+    }
+    used.forEach((s,p)=>{
+     if(!s||!stats[c.name][s])return;
+     const st=stats[c.name][s][sem];
+     if(info.full){st[info.exam?'exam':'event']++;losses.push({c:c.name,s,sem,d,p,type:info.exam?'고사':'행사',why:info.full});return}
+     if(info.lost[p]){st.event++;losses.push({c:c.name,s,sem,d,p,type:'행사',why:info.lost[p]});return}
+     st.got++;st[seg]++;
+    });
+   });
+  });
+ });
+ // 요일별 수업일수 재료 (학년별 하루 요약)
+ const dayList={};
+ grades.forEach(g=>{
+  const maxP=[0,1,2,3,4].map(wd=>Math.max(0,...TT.filter(c=>c.grade===g).map(c=>c.slots[wd].length-1)));
+  [1,2].forEach(sem=>dayList[g+'|'+sem]=semDays[sem].map(d=>{const i=day[g+'|'+d],mp=maxP[i.ttWd];
+   return{d,off:!!i.off,full:!!i.full,lostN:Object.keys(i.lost).filter(p=>+p<=mp).length,maxP:mp}}));
+ });
+ return{base,stats,losses,weekly,dayList,exams,grades};
+}
+// rule: 'full' = 종일 빠진 날만 뺌, 'half' = 절반 이상 교시가 빠진 날도 뺌
+function wdCounts(g,sem,rule){
+ const w=[0,1,2,3,4].map(()=>({all:0,off:0,full:0,half:0,part:0}));
+ R.dayList[g+'|'+sem].forEach(x=>{const c=w[wdIndex(x.d)];c.all++;
+  if(x.off)c.off++;else if(x.full||x.lostN>=x.maxP)c.full++;
+  else if(rule==='half'&&x.lostN*2>=x.maxP)c.half++;else if(x.lostN)c.part++});
+ return w;
+}
+function blank(){return{gross:0,off:0,exam:0,event:0,swapOut:0,got:0,mid:0,fin:0,after:0}}
+
+// ---------- 화면 ----------
+let TAB='sum',SEL={grade:null,sem:'all',cls:null,subj:null,rule:'full'};
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{TAB=b.dataset.tab;document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));draw()});
+$('run').onclick=()=>{
+ $('runErr').textContent='';
+ try{R=compute()}catch(e){$('runErr').textContent=e.message;console.error(e);return}
+ SEL.grade=SEL.grade??R.grades[0];SEL.cls=SEL.cls??TT[0].name;
+ $('setup').style.display='none';$('result').style.display='block';$('hdrResult').style.display='flex';
+ draw();
+};
+$('back').onclick=()=>{$('setup').style.display='';$('result').style.display='none';$('hdrResult').style.display='none'};
+function recompute(){R=compute();draw()}
+
+const semVal=(st,sem,key)=>sem==='all'?st[1][key]+st[2][key]:st[sem][key];
+function eventList(){
+ const m={};
+ SCH.events.forEach(e=>{const k=norm(e.text);(m[k]??={text:e.text,dates:[]}).dates.push(e.date)});
+ return Object.values(m).map(x=>({...x,it:interp(x.text),auto:interpret(x.text)}));
+}
+function draw(){
+ const unk=eventList().filter(x=>x.it.kind==='unknown').length;
+ $('unkCnt').textContent=unk||'';$('unkCnt').style.display=unk?'':'none';
+ $('stat').textContent=`${TT.length}개 반 · 기준 학기당 ${R.base}주 · 해석 필요 표기 ${unk}건`;
+ ({sum:drawSum,cls:drawCls,wd:drawWd,ev:drawEv})[TAB]();
+}
+function semPicker(){return `<select id="semSel"><option value="all">연간</option><option value="1">1학기</option><option value="2">2학기</option></select>`}
+function bindSem(){$('semSel').value=SEL.sem;$('semSel').onchange=e=>{SEL.sem=e.target.value==='all'?'all':+e.target.value;draw()}}
+function gotTotal(st,sem){return semVal(st,sem,'got')}
+function drawSum(){
+ const cls=TT.filter(c=>c.grade===SEL.grade);
+ const subs=[...new Set(cls.flatMap(c=>Object.keys(R.weekly[c.name])))];
+ const mult=SEL.sem==='all'?2:1;
+ let h=`<div class="row">학년 <select id="gSel">${R.grades.map(g=>`<option value="${g}">${g}학년</option>`).join('')}</select> ${semPicker()}</div>
+ <p class="legend">칸 = 확보 시수 / 기준 시수(주당 × ${R.base}주${mult>1?' × 2학기':''}). <span style="color:var(--bad)">빨간 칸</span>은 기준보다 모자람. 행을 누르면 반 상세로 가요.</p>
+ <div class="scroll"><table class="t"><tr><th class="l">과목</th><th>주당</th>${cls.map(c=>`<th>${c.name}</th>`).join('')}</tr>`;
+ subs.forEach(s=>{
+  const w=R.weekly[cls[0].name][s]||0;
+  h+=`<tr><td class="l">${s}</td><td>${w}</td>`;
+  cls.forEach(c=>{
+   const st=R.stats[c.name][s];if(!st){h+='<td>-</td>';return}
+   const got=gotTotal(st,SEL.sem),need=R.weekly[c.name][s]*R.base*mult,d=got-need;
+   h+=`<td class="${d<0?'bad':'good'} click" data-c="${c.name}" data-s="${s}" style="cursor:pointer">${got} / ${need}<br><small>${d>=0?'+':''}${d}</small></td>`;
+  });
+  h+='</tr>';
+ });
+ $('pane').innerHTML=h+'</table></div>';
+ $('gSel').value=SEL.grade;$('gSel').onchange=e=>{SEL.grade=+e.target.value;draw()};bindSem();
+ document.querySelectorAll('td.click').forEach(td=>td.onclick=()=>{SEL.cls=td.dataset.c;SEL.subj=td.dataset.s;TAB='cls';document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x.dataset.tab==='cls'));draw()});
+}
+function drawCls(){
+ const c=SEL.cls,subs=Object.keys(R.weekly[c]),cg=TT.find(x=>x.name===c).grade;
+ let h=`<div class="row">반 <select id="cSel">${TT.map(x=>`<option>${x.name}</option>`).join('')}</select>
+  <span class="hint">중간전 = 학기 시작~중간고사 전날, 기말전 = 중간고사~기말고사 전날 (그 학년 고사 기준, 고사가 없으면 -)</span></div>
+ <div class="scroll"><table class="t"><tr><th class="l" rowspan="2">과목</th><th rowspan="2">주당</th>
+  <th colspan="6">1학기</th><th colspan="6">2학기</th><th colspan="3">연간</th></tr><tr>
+  ${['중간전','기말전','기말후','확보','손실','기준'].map(x=>`<th>${x}</th>`).join('').repeat(2)}<th>확보</th><th>기준</th><th>차이</th></tr>`;
+ subs.forEach(s=>{
+  const st=R.stats[c][s],w=R.weekly[c][s],need=w*R.base;
+  const cellsFor=sem=>{const x=st[sem],g=x.got,l=x.off+x.exam+x.event+x.swapOut,e=R.exams[cg+'|'+sem]||{};
+   return `<td>${e.mid?x.mid:'-'}</td><td>${e.mid||e.fin?x.fin:'-'}</td><td>${e.fin?x.after:'-'}</td><td><b>${g}</b></td><td>${l}</td><td class="${g<need?'bad':''}">${need}</td>`};
+  const tot=gotTotal(st,'all'),d=tot-need*2;
+  h+=`<tr class="click ${SEL.subj===s?'sel':''}" data-s="${s}"><td class="l">${s}</td><td>${w}</td>${cellsFor(1)}${cellsFor(2)}<td><b>${tot}</b></td><td>${need*2}</td><td class="${d<0?'bad':'good'}">${d>=0?'+':''}${d}</td></tr>`;
+ });
+ h+='</table></div>';
+ if(SEL.subj&&R.weekly[c][SEL.subj]){
+  const L=R.losses.filter(x=>x.c===c&&x.s===SEL.subj).sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:a.p-b.p);
+  h+=`<h3 style="margin:14px 0 6px">${c} ${SEL.subj} — 빠지는 수업 ${L.length}시간</h3><div class="scroll" style="max-height:40vh"><table class="t"><tr><th>학기</th><th>날짜</th><th>요일</th><th>교시</th><th>구분</th><th class="l">사유</th></tr>`+
+   L.map(x=>`<tr><td>${x.sem}</td><td>${x.d.slice(5).replace('-','/')}</td><td>${wdName(x.d)}</td><td>${x.p}</td><td>${x.type}</td><td class="l">${x.why}</td></tr>`).join('')+'</table></div>';
+ }else h+='<p class="hint">과목 행을 누르면 빠지는 날짜·교시·사유가 나와요.</p>';
+ $('pane').innerHTML=h;
+ $('cSel').value=c;$('cSel').onchange=e=>{SEL.cls=e.target.value;draw()};
+ document.querySelectorAll('tr.click').forEach(tr=>tr.onclick=()=>{SEL.subj=tr.dataset.s;draw()});
+}
+function drawWd(){
+ let h=`<div class="row">수업일수에서 뺄 날 <select id="ruleSel"><option value="full">종일 빠진 날만</option><option value="half">절반 이상 교시가 빠진 날까지</option></select></div>
+ <p class="legend">출석일수 = 전체 일수 − 휴일·휴업 · 수업일수 = 출석일수 − 종일 행사·고사${SEL.rule==='half'?' − 절반 이상 빠진 날':''}. ‘일부 교시 빠짐’은 수업일수에 포함돼요.</p>`;
+ R.grades.forEach(g=>{
+  h+=`<h3 style="margin:12px 0 6px">${g}학년</h3><table class="t"><tr><th>학기</th><th class="l">구분</th>${['월','화','수','목','금'].map(d=>`<th>${d}</th>`).join('')}<th>계</th></tr>`;
+  [1,2].forEach(sem=>{
+   const w=wdCounts(g,sem,SEL.rule),ex=R.exams[g+'|'+sem]||{};
+   const row=(label,f,b)=>`<tr><td>${sem}</td><td class="l">${b?'<b>':''}${label}${b?'</b>':''}</td>${w.map(x=>`<td>${b?'<b>':''}${f(x)}${b?'</b>':''}</td>`).join('')}<td>${w.reduce((n,x)=>n+f(x),0)}</td></tr>`;
+   h+=DAYROWS(SEL.rule).map(([k,f,b])=>row(k,f,b)).join('');
+   h+=`<tr><td colspan="8" class="l"><small>${sem}학기 고사: 중간 ${ex.mid?ex.mid.slice(5).replace('-','/'):'없음'} · 기말 ${ex.fin?ex.fin.slice(5).replace('-','/'):'없음'}</small></td></tr>`;
+  });
+  h+='</table>';
+ });
+ $('pane').innerHTML=h;
+ $('ruleSel').value=SEL.rule;$('ruleSel').onchange=e=>{SEL.rule=e.target.value;draw()};
+}
+const DAYROWS=rule=>[['전체 일수',x=>x.all],['휴일·휴업',x=>x.off],['출석일수',x=>x.all-x.off,true],['종일 행사·고사',x=>x.full],
+ ...(rule==='half'?[['절반 이상 빠진 날',x=>x.half]]:[]),['수업일수',x=>x.all-x.off-x.full-x.half,true],['일부 교시 빠짐',x=>x.part]];
+function drawEv(){
+ const list=eventList().sort((a,b)=>(a.it.kind==='unknown'?0:1)-(b.it.kind==='unknown'?0:1)||a.dates[0].localeCompare(b.dates[0]));
+ let h=`<p class="legend">학사일정의 표기를 어떻게 읽었는지 보여 줘요. <b>주황 줄</b>은 해석하지 못한 것 — ‘바꾸기’에서 고르면 바로 다시 계산해요. 학년은 비우면 전체.</p>
+ <div class="scroll"><table class="t"><tr><th class="l">학사일정 표기</th><th>횟수</th><th class="l">자동 해석</th><th>바꾸기</th><th>교시</th><th>학년</th></tr>`;
+ list.forEach((x,i)=>{
+  const o=OVERRIDE[norm(x.text)]||{};
+  const g=(o.grades!==undefined?o.grades:x.auto.grades);
+  const locked=x.auto.kind==='tt'||(x.auto.kind==='off'&&x.auto.why.startsWith('휴일'));
+  h+=`<tr class="${x.it.kind==='unknown'?'unk':''}"><td class="l">${esc(x.text)}</td><td>${x.dates.length}</td>
+   <td class="l">${x.auto.why}${x.auto.grades?` <small>(${x.auto.grades.join(',')}학년)</small>`:''}</td>
+   <td>${locked?'<small>고정</small>':`<select data-i="${i}" class="ovk"><option value="">자동</option><option value="full">종일</option><option value="periods">교시 지정</option><option value="none">영향 없음</option><option value="off">휴업(종일·전체)</option></select>`}</td>
+   <td>${locked?'':`<input type="text" data-i="${i}" class="ovp" style="width:60px" placeholder="1-3" value="${o.periods?fmtP(o.periods):''}">`}</td>
+   <td>${locked?'':`<input type="text" data-i="${i}" class="ovg" style="width:50px" placeholder="전체" value="${g?g.join(','):''}">`}</td></tr>`;
+ });
+ $('pane').innerHTML=h+'</table></div>';
+ document.querySelectorAll('.ovk').forEach(s=>{const x=list[s.dataset.i];s.value=(OVERRIDE[norm(x.text)]||{}).kind||''});
+ const save=i=>{
+  const x=list[i],k=norm(x.text);
+  const kind=document.querySelector(`.ovk[data-i="${i}"]`).value;
+  const pv=document.querySelector(`.ovp[data-i="${i}"]`).value,gv=document.querySelector(`.ovg[data-i="${i}"]`).value.trim();
+  const grades=gv?gv.split(/[,\s]+/).map(Number).filter(Boolean):null;
+  const gChanged=JSON.stringify(grades)!==JSON.stringify(x.auto.grades);
+  if(!kind&&!gChanged){delete OVERRIDE[k]}
+  else{
+   const base=kind||({full:'full',periods:'periods',off:'off'}[x.auto.kind]||'none');
+   OVERRIDE[k]={kind:base,grades,periods:base==='periods'?(parseP(pv)||x.auto.periods||[]):undefined};
+  }
+  recompute();
+ };
+ document.querySelectorAll('.ovk,.ovp,.ovg').forEach(el=>el.onchange=()=>save(el.dataset.i));
+}
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtP=p=>p.length>1&&p[p.length-1]-p[0]===p.length-1?`${p[0]}-${p[p.length-1]}`:p.join(',');
+function parseP(v){const out=new Set();v.split(/[,\s]+/).forEach(x=>{const m=x.match(/^(\d)(?:-(\d))?$/);if(m)for(let p=+m[1];p<=+(m[2]||m[1]);p++)out.add(p)});return out.size?[...out].sort((a,b)=>a-b):null}
+
+// ---------- 내보내기 ----------
+$('xlsx').onclick=()=>{
+ const wb=XLSX.utils.book_new();
+ const a=[['반','과목','주당','기준(학기)','1학기 중간전','1학기 기말전','1학기 기말후','1학기 확보','1학기 손실','2학기 중간전','2학기 기말전','2학기 기말후','2학기 확보','2학기 손실','연간 확보','연간 기준','차이']];
+ TT.forEach(c=>Object.keys(R.weekly[c.name]).forEach(s=>{
+  const st=R.stats[c.name][s],w=R.weekly[c.name][s],need=w*R.base;
+  const part=sem=>{const x=st[sem];return[x.mid,x.fin,x.after,x.got,x.off+x.exam+x.event+x.swapOut]};
+  const tot=gotTotal(st,'all');
+  a.push([c.name,s,w,need,...part(1),...part(2),tot,need*2,tot-need*2]);
+ }));
+ XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(a),'반별 과목 시수');
+ const l=[['반','과목','학기','날짜','요일','교시','구분','사유']];
+ R.losses.slice().sort((x,y)=>x.c.localeCompare(y.c)||x.d.localeCompare(y.d)||x.p-y.p).forEach(x=>l.push([x.c,x.s,x.sem,x.d,wdName(x.d),x.p,x.type,x.why]));
+ XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(l),'손실 내역');
+ const w=[['학년','학기','구분','월','화','수','목','금','계']];
+ R.grades.forEach(g=>[1,2].forEach(sem=>{const ws=wdCounts(g,sem,SEL.rule);
+  DAYROWS(SEL.rule)
+  .forEach(([k,f])=>w.push([g,sem,k,...ws.map(f),ws.reduce((n,x)=>n+f(x),0)]))}));
+ XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(w),'요일별 수업일수');
+ const e=[['학사일정 표기','횟수','해석','학년']];
+ eventList().forEach(x=>e.push([x.text,x.dates.length,x.it.why,x.it.grades?x.it.grades.join(','):'전체']));
+ XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(e),'행사 해석');
+ XLSX.utils.book_append_sheet(wb,timetableSheet(TT),'시간표');
+ XLSX.writeFile(wb,`${SCH.year}_시수계산.xlsx`);
+};
+</script>
+</body></html>

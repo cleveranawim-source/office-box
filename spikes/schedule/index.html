@@ -253,7 +253,8 @@ function parseSheet(ws,year){
    }
    const end=j+1<hdr.length?hdr[j+1][0]:r+4;
    for(let rr=r+1;rr<end;rr++){
-    if(typeof cell(ws,rr,L.wcol)?.v==='string'||typeof cell(ws,rr,L.mcol)?.v==='string')break; // 출석일수 등 아래 표
+    const isLabel=c=>{const v=cell(ws,rr,c)?.v;return typeof v==='string'&&v.trim()!==''};
+    if(isLabel(L.wcol)||isLabel(L.mcol))break; // 출석일수 등 아래 표
     for(let k=0;k<6;k++){
      const c=cell(ws,rr,L.dcol+k);
      if(!c||c.f||c.t!=='s')continue;
