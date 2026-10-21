@@ -1,6 +1,6 @@
 // 01 학사일정: 작년 행사를 같은 학기·주차·요일로 새해 달력에 옮긴다.
 import { add, diff, ymd, mondayOf, norm, D, iso, md } from './dates.js';
-import { HOLIDAYS, HOLIDAY_RE, DISC_RE } from './holidays.js';
+import { HOLIDAYS, isHoliday, DISC_RE } from './holidays.js';
 
 const RANGE_RE = /\((\d{1,2})?\s*~\s*(\d{1,2})\)/g;
 
@@ -42,7 +42,7 @@ export function placeSchedule(old, { newYear, starts, ref = null }) {
   });
   const events = [], dropped = [];
   old.events.forEach((e, i) => {
-    if (HOLIDAY_RE.test(e.text)) return; // 작년 공휴일은 버리고 새해 공휴일로
+    if (isHoliday(e.text)) return; // 작년 공휴일은 버리고 새해 공휴일로
     const key = e.sem + '-' + e.week;
     if (!newWeeks[key]) { dropped.push(e); return; }
     const nd = add(newWeeks[key], e.wd);
@@ -63,7 +63,7 @@ export function placeSchedule(old, { newYear, starts, ref = null }) {
   events.forEach((p) => { p.cmp = 'same'; });
   if (ref && !ref.error) {
     cmpOn = true;
-    const refEv = ref.events.filter((e) => !HOLIDAY_RE.test(e.text));
+    const refEv = ref.events.filter((e) => !isHoliday(e.text));
     const refSet = new Set(refEv.map((e) => e.date + '|' + norm(e.text)));
     const toolSet = new Set(events.map((p) => p.date + '|' + norm(p.text)));
     events.forEach((p) => { p.cmp = refSet.has(p.date + '|' + norm(p.text)) ? 'same' : 'diff'; });

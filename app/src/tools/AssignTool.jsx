@@ -3,7 +3,7 @@ import { Download, FileSpreadsheet, Sparkles, Shuffle, Trash2, Plus, Pin, PinOff
 import { useStore } from '../store.jsx';
 import { ToolFrame, SheetSource, Loaded, Need, Ok, TOOLS } from '../ui.jsx';
 import { XLSX, downloadWorkbook } from '../lib/sheet.js';
-import { parseRoster, rosterTemplate, demoRoster, autoAssign, evaluate } from '../lib/assign.js';
+import { parseRoster, rosterTemplate, demoRoster, autoAssign, evaluate, matchStudents } from '../lib/assign.js';
 
 const T = TOOLS[3];
 const KIND = { apart: '같은 반 금지', together: '같은 반으로', fixed: '반 고정' };
@@ -12,6 +12,7 @@ export default function AssignTool() {
   const { state, patch } = useStore();
   const a = state.assign;
   const [busy, setBusy] = useState(false);
+  const [runError, setRunError] = useState('');
   const [selId, setSelId] = useState(null);
   const byId = useMemo(() => Object.fromEntries((a.students || []).map((s) => [s.id, s])), [a.students]);
   const ev = useMemo(() => (a.students && a.result ? evaluate(a.students, a.rules, a.fixed, a.classCount, a.result.assign, a.weights) : null), [a]);
@@ -19,11 +20,14 @@ export default function AssignTool() {
 
   const load = ({ students, rules }, label, demo) => patch('assign', { students, rules, fixed: {}, result: null, label, demo });
   const run = () => {
-    setBusy(true);
+    setBusy(true); setRunError('');
     setTimeout(() => {
-      const r = autoAssign(a.students, a.rules, a.fixed, a.classCount, a.weights, Date.now() % 100000);
-      patch('assign', { result: { assign: r.assign } });
-      setBusy(false);
+      try {
+        const r = autoAssign(a.students, a.rules, a.fixed, a.classCount, a.weights, Date.now() % 100000);
+        patch('assign', { result: { assign: r.assign } });
+      } catch {
+        setRunError('반을 나누지 못했어요. 조건과 반 수를 확인하고 다시 눌러 주세요.');
+      } finally { setBusy(false); }
     }, 20);
   };
   const move = (id, c) => patch('assign', (x) => ({ result: { assign: { ...x.result.assign, [id]: c } } }));
@@ -54,7 +58,11 @@ export default function AssignTool() {
           <h2><span className="no">3</span>나누기</h2>
           <label className="field">반 수
             <input className="input" type="number" min="2" max="20" value={a.classCount} style={{ maxWidth: 120 }}
-              onChange={(e) => patch('assign', { classCount: Math.min(20, Math.max(2, +e.target.value || 2)), result: null })} />
+              onChange={(e) => {
+                const n = Math.min(20, Math.max(2, +e.target.value || 2));
+                // 없어진 반에 고정된 학생은 고정을 푼다
+                patch('assign', (x) => ({ classCount: n, result: null, fixed: Object.fromEntries(Object.entries(x.fixed).filter(([, c]) => c < n)) }));
+              }} />
           </label>
           <fieldset style={{ border: 0, padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
             <legend className="hint" style={{ marginBottom: 6 }}>고르게 맞출 것</legend>
@@ -63,6 +71,7 @@ export default function AssignTool() {
             ))}
           </fieldset>
           <button className="btn primary" disabled={!a.students || busy} onClick={run} style={{ marginTop: 'auto' }}><Shuffle size={16} aria-hidden />{busy ? '나누는 중…' : a.result ? '다시 나누기' : '자동으로 나누기'}</button>
+          {runError && <p className="error" role="alert">{runError}</p>}
         </div>
       </div>
 
@@ -125,18 +134,9 @@ function Rules({ a, byId, patch }) {
   const [names, setNames] = useState('');
   const [cls, setCls] = useState(1);
   const [err, setErr] = useState('');
-  const findIds = (text) => {
-    const parts = text.split(/[,，\s]+/).map((s) => s.trim()).filter(Boolean);
-    const ids = [], missing = [], dup = [];
-    parts.forEach((p) => {
-      const hits = a.students.filter((s) => s.name === p || s.id === p);
-      if (!hits.length) missing.push(p); else if (hits.length > 1) dup.push(p); else ids.push(hits[0].id);
-    });
-    return { ids, missing, dup };
-  };
   const add = (e) => {
     e.preventDefault();
-    const { ids, missing, dup } = findIds(names);
+    const { ids, missing, dup } = matchStudents(a.students, names.split(/[,，\s]+/));
     if (missing.length) { setErr(`명단에 없는 이름: ${missing.join(', ')}`); return; }
     if (dup.length) { setErr(`같은 이름이 여럿이에요: ${dup.join(', ')} — 번호로 적어 주세요.`); return; }
     if (kind === 'fixed') {

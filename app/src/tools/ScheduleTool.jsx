@@ -48,6 +48,7 @@ function Setup({ onDone, onCancel }) {
   const run = () => {
     if (!old || old.error) { setError(old?.error || '작년 일정 탭을 골라 주세요.'); return; }
     if (!starts[1]) { setError('1학기 1주 월요일을 정해 주세요.'); return; }
+    if (old.weeks['2-1'] && !starts[2]) { setError('2학기 1주 월요일을 정해 주세요. 비워 두면 2학기 행사가 빠져요.'); return; }
     const ref = cmp ? parseWeekGrid(wb.Sheets[cmp], yearOf(cmp, wb.Sheets[cmp])) : null;
     const result = placeSchedule(old, { newYear, starts, ref });
     set('schedule', { source: `${src} (${label})`, cmpName: cmp, result });
@@ -140,7 +141,7 @@ function Result({ result, source, onRebuild, update }) {
 
   return (
     <ToolFrame tool={T} band={`${result.newYear}학년도`} title={`${result.newYear}학년도 학사일정`}
-      desc={`${source}에서 ${result.events.length}건을 옮겼어요.${result.cmpOn ? ` 견준 안과 같은 날짜 ${result.stats.same}건(${Math.round((result.stats.same / result.stats.total) * 100)}%).` : ''}`}
+      desc={`${source}에서 ${result.events.length}건을 옮겼어요.${result.stats.dropped ? ` 학기 시작일이 없어 ${result.stats.dropped}건은 옮기지 못했어요.` : ''}${result.cmpOn ? ` 견준 안과 같은 날짜 ${result.stats.same}건(${Math.round((result.stats.same / result.stats.total) * 100)}%).` : ''}`}
       actions={<>
         <button className="btn" onClick={onRebuild}><RotateCcw size={16} aria-hidden />다시 만들기</button>
         <button className="btn primary" onClick={() => exportSchedule(result)}><Download size={16} aria-hidden />엑셀로 내려받기</button>

@@ -2,12 +2,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
-import { readWorkbook, parseWeekGrid, yearOf, weekGridTabs, defaultTab } from './sheet.js';
+import { readWorkbook, parseWeekGrid, yearOf, weekGridTabs, defaultTab, XLSX } from './sheet.js';
+import { isHoliday } from './holidays.js';
 import { placeSchedule, suggestStarts, scheduleData, shiftRanges } from './schedule.js';
 import { interpret, parsePeriods } from './interpret.js';
 import { computeHours, dayCounts } from './hours.js';
 import { demoTimetable } from './timetable.js';
-import { demoRoster, autoAssign } from './assign.js';
+import { demoRoster, autoAssign, parseRoster, evaluate, DEFAULT_WEIGHTS } from './assign.js';
 import { DEFAULT_REQUIRED, autoLinks, tally } from './required.js';
 
 test('표기 해석', () => {
@@ -37,6 +38,64 @@ test('반배정: 예시 명단은 조건 위반 없이 고르게', () => {
   assert.ok(Math.max(...sizes) - Math.min(...sizes) <= 1, `sizes ${sizes}`);
   const avgs = r.per.map((p) => p.avg);
   assert.ok(Math.max(...avgs) - Math.min(...avgs) < 2, `avgs ${avgs}`);
+});
+
+test('공휴일은 이름만 있을 때만 공휴일', () => {
+  for (const t of ['추석 연휴', '대체공휴일(광복절)', '대체 휴일', '추석·개천절', '임시공휴일(지방선거)', '삼일절']) assert.ok(isHoliday(t), t);
+  for (const t of ['현충일 추념식1', '한글날 기념 백일장3-4']) assert.ok(!isHoliday(t), t);
+  assert.deepEqual(interpret('한글날 기념 백일장3-4').periods, [3, 4]);
+  assert.deepEqual(interpret('(3학년) 재량휴업일').grades, [3]);
+});
+
+// 가짜 주 단위 시트: 1주(3/2~) 다음 한 주를 건너뛴 2주(3/16~)
+function fakeSheet() {
+  const days = (d) => Array.from({ length: 6 }, (_, i) => d + i);
+  const aoa = [
+    ['2026학년도 1학기 학사일정'], ['월', '주', '월', '화', '수', '목', '금', '토'],
+    [3, 1, ...days(2)],
+    ['', '', '학생상담주간(2~6)', '현충일 추념식1', '(3학년) 재량휴업일', '(2,3학년) 중간고사', '★월요일 시간표 운영★', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', 2, ...days(16)],
+    ['', '', '', '학교폭력예방교육1/성교육2', '', '', '', ''],
+  ];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), '2026 학사일정');
+  return wb;
+}
+
+test('가짜 시트: 읽기 → 배치 → 시수 → 필수교육', () => {
+  const ws = fakeSheet().Sheets['2026 학사일정'];
+  const old = parseWeekGrid(ws, yearOf('2026 학사일정', ws));
+  assert.equal(old.weeks['1-2'], '2026-03-16', '건너뛴 주는 줄에 적힌 날짜를 따른다');
+  const res = placeSchedule(old, { newYear: 2027, starts: suggestStarts(old, 2027) });
+  const texts = res.events.map((e) => e.text);
+  assert.ok(texts.includes('현충일 추념식1'), '공휴일 낱말이 든 행사도 옮긴다');
+  assert.ok(texts.includes('학생상담주간(1~5)'));
+  const slots = () => [0, 1, 2, 3, 4].map(() => [, 'A', 'B', 'C']);
+  const classes = [{ name: '1-1', grade: 1, slots: slots() }, { name: '3-1', grade: 3, slots: slots() }];
+  const R = computeHours(old, classes, {}, 17);
+  const lost = (c, d) => R.losses.filter((x) => x.c === c && x.d === d);
+  assert.equal(lost('1-1', '2026-03-04').length, 0, '3학년 재량휴업은 1학년과 무관');
+  assert.equal(lost('3-1', '2026-03-04').length, 3);
+  assert.deepEqual(lost('1-1', '2026-03-03').map((x) => x.p), [1]);
+  assert.equal(lost('3-1', '2026-03-05').filter((x) => x.type === '고사').length, 3);
+  assert.ok(lost('1-1', '2026-03-06').every((x) => x.type === '시간표 바꿈'));
+  const links = autoLinks(old, DEFAULT_REQUIRED, [1, 2, 3]);
+  assert.equal(links.find((l) => l.itemId === 'sex').amount, 1, '한 칸에 둘이면 제 조각 교시만');
+});
+
+test('반배정: 조건 시트의 모르는 이름·같은 이름은 오류', () => {
+  const book = (cond) => {
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['번호', '이름', '성별'], [1, '박지우', '여'], [2, '이서연', '여'], [3, '김민준', '남'], [4, '김민준', '남']]), '명단');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['종류', '학생', '학생'], cond]), '조건');
+    return wb;
+  };
+  assert.throws(() => parseRoster(book(['금지', '박지우', '이서언'])), /이서언/);
+  assert.throws(() => parseRoster(book(['금지', '박지우', '김민준'])), /김민준/);
+  const { students, rules } = parseRoster(book(['금지', '박지우', '이서연']));
+  assert.equal(rules.length, 1);
+  assert.equal(evaluate(students, rules, {}, 2, { 1: 0, 2: 0, 3: 1, 4: 1 }, DEFAULT_WEIGHTS).violations.length, 1);
 });
 
 const SHEET = process.env.SHEET;

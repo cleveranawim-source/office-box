@@ -5,6 +5,7 @@ import { TOOLS, PeriodBar, Need, Ok, Warn } from './ui.jsx';
 import { needsDecision, scheduleData } from './lib/schedule.js';
 import { interpWith, interpret } from './lib/interpret.js';
 import { computeHours } from './lib/hours.js';
+import { evaluate } from './lib/assign.js';
 import { norm } from './lib/dates.js';
 import { autoLinks, tally, stateOf } from './lib/required.js';
 import ScheduleTool from './tools/ScheduleTool.jsx';
@@ -103,6 +104,7 @@ function Home() {
     return { met, short, targeted: targeted.length, any: links.length + state.required.manual.length, periods };
   }, [shared.sch, state.required, tt]);
   const a = state.assign;
+  const violations = a.students && a.result ? evaluate(a.students, a.rules, a.fixed, a.classCount, a.result.assign, a.weights).violations.length : 0;
   // 교시 막대는 실제 데이터에서: 01 정할 행사가 걸린 교시, 02 행사로 가장 많이 빠지는 교시, 03 필수교육 행사가 쓰는 교시
   const bar01 = s ? [...new Set(s.events.filter(needsDecision).flatMap((e) => { const it = interpret(e.text); return it.kind === 'periods' ? it.periods : []; }))].sort((x, y) => x - y) : null;
   const bar02 = useMemo(() => {
@@ -117,7 +119,7 @@ function Home() {
     !s || needs > 0,
     !(shared.sch && tt) || unknown > 0,
     !!shared.sch && req.short > 0,
-    !a.students || !a.result,
+    !a.students || !a.result || violations > 0,
   ];
   const next = steps.findIndex(Boolean);
 
@@ -147,7 +149,7 @@ function Home() {
       t: TOOLS[3], sum: a.students ? `${a.students.length}명` : '',
       desc: '학생 명단과 조건(같은 반 금지·함께·반 고정)으로 반을 나누고, 성비·성적·이전 반을 고르게 맞춰요.',
       io: [['학생 명단', a.students ? `${a.students.length}명${a.demo ? ' (예시)' : ''}` : '아직 없음'], ['조건', `${a.rules.length}개`]],
-      status: a.result ? (a.result.violations?.length ? <Need>조건 어긋남 {a.result.violations.length}건</Need> : <Ok>조건 모두 지킴</Ok>) : null,
+      status: a.result ? (violations ? <Need>조건 어긋남 {violations}건</Need> : <Ok>조건 모두 지킴</Ok>) : null,
       bar: null, cta: a.result ? '반 명단 보기' : a.students ? '반 나누기' : '명단 올리기',
     },
   ];

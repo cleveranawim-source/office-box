@@ -49,10 +49,16 @@ export function autoLinks(sch, items, grades, dayPeriods = 6) {
   if (!sch) return out;
   sch.events.forEach((e) => {
     if (STAFF_ONLY_RE.test(e.text)) return; // 교직원·학부모 대상 연수는 학생 필수교육이 아님
-    const it = interpret(e.text);
-    if (it.kind === 'off') return;
+    const whole = interpret(e.text);
+    if (whole.kind === 'off') return;
     items.forEach((item) => {
       if (!matches(item, e.text)) return;
+      // '학교폭력예방교육1/성교육2'처럼 한 칸에 여럿이면 이 교육이 든 조각의 교시만 센다
+      const parts = e.text.split(/[,/]/).filter((p) => matches(item, p)).map((p) => interpret(p));
+      const its = parts.length ? parts : [whole];
+      const periods = [...new Set(its.flatMap((x) => x.periods || []))].sort((x, y) => x - y);
+      const it = its.some((x) => x.kind === 'full') ? { kind: 'full' } : periods.length ? { kind: 'periods', periods } : { kind: 'none' };
+      it.grades = whole.grades;
       out.push({
         key: `${item.id}|${e.date}|${norm(e.text)}`, itemId: item.id, date: e.date, text: e.text,
         grades: it.grades || grades, amount: amountOf(item, it, dayPeriods),

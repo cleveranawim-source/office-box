@@ -1,5 +1,5 @@
 // 학사일정 표기 해석: '입학식1-4' → 1~4교시, '(2,3학년) 중간고사' → 2·3학년 종일 …
-import { HOLIDAY_RE, DISC_RE } from './holidays.js';
+import { isHoliday, DISC_RE } from './holidays.js';
 import { norm } from './dates.js';
 
 const STAFF_RE = /교직원|부장회의|평정회|연수|정담회|총회|학부모|보호자|상담주간|캠페인|마감|제출|임원수련회|예비소집|방과후|교생실습|건강검진|소변검사|기도회|수능감독|민방위|소방합동훈련|전시마당|생활기록부/;
@@ -15,7 +15,7 @@ export function interpret(text) {
   let t = text, grades = null;
   const g = t.match(GRADE_RE);
   if (g) { grades = g[1].split(',').map(Number); t = t.replace(g[0], '').trim(); }
-  if (HOLIDAY_RE.test(t) || DISC_RE.test(t) || /^방학$/.test(t)) return { kind: 'off', grades: null, why: '휴일·휴업·방학', fixed: true };
+  if (isHoliday(t) || DISC_RE.test(t) || /^방학$/.test(t)) return { kind: 'off', grades, why: '휴일·휴업·방학', fixed: true };
   if (/대학수학능력시험/.test(t)) return { kind: 'off', grades: null, why: '수능일 — 시험장이면 휴업' };
   const tt = t.match(TT_RE);
   if (tt) return { kind: 'tt', wd: '월화수목금'.indexOf(tt[1]), grades, why: `${tt[1]}요일 시간표로 운영`, fixed: true };
@@ -48,7 +48,7 @@ export function interpWith(overrides, text) {
   const a = interpret(text), o = overrides?.[norm(text)];
   if (!o) return a;
   const grades = o.grades !== undefined ? o.grades : a.grades;
-  if (o.kind === 'off') return { kind: 'off', grades: null, why: '휴업 (직접 정함)', manual: true };
+  if (o.kind === 'off') return { kind: 'off', grades, why: '휴업 (직접 정함)', manual: true };
   if (o.kind === 'full') return { kind: 'full', grades, exam: /고사/.test(text), why: '종일 (직접 정함)', manual: true };
   if (o.kind === 'periods') return { kind: 'periods', periods: o.periods || [], grades, why: fmtPeriods(o.periods || []) + '교시 (직접 정함)', manual: true };
   return { kind: 'none', grades, why: '영향 없음 (직접 정함)', manual: true };

@@ -1,6 +1,16 @@
 // 04 반배정: 조건(같은 반 금지·함께·반 고정)을 지키면서 인원·성비·성적·이전 반·특이사항을 고르게.
 import { XLSX } from './sheet.js';
 
+/** 이름 또는 번호 → 학생 id. 명단에 없거나 같은 이름이 여럿이면 따로 알려 준다 */
+export function matchStudents(students, names) {
+  const ids = [], missing = [], dup = [];
+  names.map((n) => String(n).trim()).filter(Boolean).forEach((n) => {
+    const hits = students.filter((s) => s.name === n || s.id === n);
+    if (!hits.length) missing.push(n); else if (hits.length > 1) dup.push(n); else ids.push(hits[0].id);
+  });
+  return { ids, missing, dup };
+}
+
 /** students: [{id, name, gender:'남'|'여'|'', score:number|null, prev:string, tags:string[]}] */
 export function parseRoster(wb) {
   const ws = wb.Sheets[wb.SheetNames[0]];
@@ -33,11 +43,15 @@ export function parseRoster(wb) {
   const rules = [];
   const cws = wb.Sheets[wb.SheetNames.find((n) => /조건/.test(n))];
   if (cws) {
-    XLSX.utils.sheet_to_json(cws, { header: 1, defval: '' }).forEach((r) => {
+    XLSX.utils.sheet_to_json(cws, { header: 1, defval: '' }).forEach((r, i) => {
       const kind = /함께/.test(r[0]) ? 'together' : /금지|떨어|분리/.test(r[0]) ? 'apart' : null;
       if (!kind) return;
-      const ids = r.slice(1).map((n) => students.find((s) => s.name === String(n).trim() || s.id === String(n).trim())?.id).filter(Boolean);
-      if (ids.length >= 2) rules.push({ id: `r${rules.length + 1}`, kind, ids });
+      const { ids, missing, dup } = matchStudents(students, r.slice(1));
+      const where = `‘조건’ 시트 ${i + 1}줄`;
+      if (missing.length) throw new Error(`${where}: 명단에 없는 이름 ${missing.join(', ')}`);
+      if (dup.length) throw new Error(`${where}: 같은 이름이 여럿이에요 — ${dup.join(', ')}. 이름 대신 번호로 적어 주세요.`);
+      if (ids.length < 2) throw new Error(`${where}: 학생을 두 명 이상 적어 주세요.`);
+      rules.push({ id: `r${rules.length + 1}`, kind, ids });
     });
   }
   return { students, rules };

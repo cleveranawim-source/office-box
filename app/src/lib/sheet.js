@@ -68,6 +68,7 @@ export function parseWeekGrid(ws, year) {
   if (!year) return { error: '탭 이름이나 제목에서 연도(예: 2026)를 찾지 못했어요.' };
   const range = XLSX.utils.decode_range(ws['!ref']);
   const weeks = {}, events = [], markers = {};
+  let bad = '';
   findLayout(ws).forEach((L, i) => {
     const sem = i + 1;
     const hdr = [];
@@ -76,11 +77,18 @@ export function parseWeekGrid(ws, year) {
       if (typeof w === 'number' && dayNum(cell(ws, r, L.dcol)?.v) != null) hdr.push([r, w]);
     }
     if (!hdr.length) return;
-    const month = +cell(ws, hdr[0][0], L.mcol)?.v;
+    const month = parseInt(String(cell(ws, hdr[0][0], L.mcol)?.v), 10); // '3' 또는 '3월'
+    if (!(month >= 1 && month <= 12)) { bad = `${sem}학기 첫 주의 ‘월’ 칸에서 달을 읽지 못했어요.`; return; }
     const yy = sem === 2 && month < 3 ? year + 1 : year;
     let mon = ymd(yy, month, dayNum(cell(ws, hdr[0][0], L.dcol).v));
     hdr.forEach(([r, w], j) => {
-      if (j) mon = add(mon, 7);
+      if (j) {
+        // 보통 다음 주지만, 방학 등으로 건너뛴 주는 그 줄에 적힌 월요일 날짜를 따른다
+        const d0 = dayNum(cell(ws, r, L.dcol)?.v);
+        let next = add(mon, 7);
+        for (let k = 0; d0 != null && k < 8 && +next.slice(8) !== d0; k++) next = add(next, 7);
+        mon = d0 != null && +next.slice(8) === d0 ? next : add(mon, 7);
+      }
       const dates = [0, 1, 2, 3, 4, 5].map((k) => add(mon, k));
       weeks[sem + '-' + w] = mon;
       for (let k = 0; k < 6; k++) {
@@ -101,6 +109,7 @@ export function parseWeekGrid(ws, year) {
       }
     });
   });
+  if (bad) return { error: bad };
   if (!weeks['1-1']) return { error: '1학기 1주를 찾지 못했어요. “월 · 주 · 월~토” 머리글이 있는 탭인지 확인해 주세요.' };
   return { year, weeks, events, markers };
 }

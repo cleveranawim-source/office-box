@@ -14,5 +14,8 @@ export const HOLIDAYS = {
 
 export const SUPPORTED_YEARS = [2027, 2028];
 
-export const HOLIDAY_RE = /대체\s*(공)?휴일|삼일절|어린이날|노동절|제헌절|현충일|광복절|추석|설날|한글날|개천절|신정|성탄절|부처님오신날|임시공휴일|국회의원선거/;
+const NAME = '(?:대체\\s*공?휴일|삼일절|어린이날|노동절|제헌절|현충일|광복절|추석|설날|한글날|개천절|신정|성탄절|부처님오신날|임시공휴일|국회의원선거)';
+// 칸 전체가 공휴일 이름일 때만 공휴일: '추석 연휴', '대체공휴일(광복절)'은 맞고 '현충일 추념식1'은 행사
+const HOLIDAY_ONLY = new RegExp(`^${NAME}(?:·${NAME})*(?:\\s*연휴)?(?:\\s*\\([^)]*\\))?$`);
+export const isHoliday = (t) => HOLIDAY_ONLY.test(String(t).trim());
 export const DISC_RE = /재량휴업/;
