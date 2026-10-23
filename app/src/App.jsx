@@ -170,7 +170,7 @@ function Home() {
               {c.bar && (
                 <div className="barrow">
                   <span>{c.barLabel}</span>
-                  <PeriodBar periods={c.bar} color={c.t.color} large />
+                  <PeriodBar periods={c.bar} color={c.t.color} ink={c.t.ink} large />
                   {!c.bar.length && <span className="hint">해당 교시 없음</span>}
                 </div>
               )}

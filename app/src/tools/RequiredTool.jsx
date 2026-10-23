@@ -120,7 +120,7 @@ function Detail({ item, grades, cells, links, excluded, manual, setItem, toggle,
                   <input type="checkbox" checked={!off} onChange={() => toggle(l.key)} />
                   <span style={{ display: 'flex', flexDirection: 'column', gap: 2, fontSize: 12.5 }}>
                     <span><b className="num">{md(l.date)}({wdName(l.date)})</b> {l.text}</span>
-                    <span className="row" style={{ gap: 6 }}>{l.periods.length ? <PeriodBar periods={l.periods} color={T.color} /> : null}<span className="hint">{l.amount}{item.unit} · {l.grades.join(',')}학년</span></span>
+                    <span className="row" style={{ gap: 6 }}>{l.periods.length ? <PeriodBar periods={l.periods} color={T.color} ink={T.ink} /> : null}<span className="hint">{l.amount}{item.unit} · {l.grades.join(',')}학년</span></span>
                   </span>
                 </label>
               </li>

@@ -229,7 +229,7 @@ function Inspector({ e, holidays, onPatch, onMove, onRemove, onClose }) {
       <label className="field">이름<input ref={ref} className="input" value={e.text} onChange={(ev) => onPatch({ text: ev.target.value })} /></label>
       <label className="field">날짜<input className="input" type="date" value={e.date} onChange={(ev) => ev.target.value && onMove(ev.target.value)} /></label>
       {holidays[e.date] && <p className="hint">이 날은 {holidays[e.date]}이에요.</p>}
-      <div className="barrow"><span>교시 · {it.why}</span><PeriodBar periods={it.kind === 'periods' ? it.periods : it.kind === 'full' || it.kind === 'off' ? [1, 2, 3, 4, 5, 6, 7] : []} color={it.kind === 'off' ? '#7d877f' : T.color} large /></div>
+      <div className="barrow"><span>교시 · {it.why}</span><PeriodBar periods={it.kind === 'periods' ? it.periods : it.kind === 'full' || it.kind === 'off' ? [1, 2, 3, 4, 5, 6, 7] : []} color={it.kind === 'off' ? '#9893a5' : T.color} large /></div>
       {e.old && <p className="hint">작년에는 {md(e.old)}({wdName(e.old)})에 있었어요.</p>}
       {e.status === 'range' && <p className="hint">✎ 괄호 속 날짜를 새해에 맞게 고쳤어요. 날짜가 아닌 괄호(교시·학년 등)라면 이름을 직접 바로잡아 주세요.</p>}
       {(e.status === 'conflict' || e.status === 'disc') && (

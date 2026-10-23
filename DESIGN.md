@@ -2,32 +2,32 @@
 name: 교무자동화도구 박스
 description: 학교 교무 계획을 교실 시간표판처럼 칸으로 읽게 하는 네 도구 모음
 colors:
-  rail: "#1f4d3a"
-  rail-deep: "#163a2b"
-  rail-ink: "#eef4ef"
-  rail-mute: "#b3cbbc"
-  board: "#fafaf7"
-  paper: "#ffffff"
-  ink: "#1a1d1a"
-  ink-2: "#3f4a42"
-  mute: "#5b6b60"
-  line: "#d6d9d0"
-  line-2: "#e8eae3"
-  wash: "#f2f4ee"
-  t1-violet: "#6d3fc0"
-  t1-wash: "#f1ebfb"
-  t2-blue: "#2563c9"
-  t2-wash: "#e9f0fc"
-  t3-green: "#1e7f3a"
-  t3-wash: "#e7f4ea"
-  t4-yellow: "#f2a900"
-  t4-wash: "#fdf4dc"
-  rubric: "#c8102e"
-  rubric-wash: "#fdeef0"
-  ok: "#1f6b3f"
-  short-wash: "#e6e8e2"
-  hol-ink: "#1f4d3a"
-  excluded: "#9aa39b"
+  rail: "#575279"
+  rail-deep: "#48446a"
+  rail-ink: "#faf4ed"
+  rail-mute: "#d9d4e6"
+  board: "#faf4ed"
+  paper: "#fffaf3"
+  ink: "#575279"
+  ink-2: "#5f5a7e"
+  mute: "#6e6a86"
+  line: "#dfdad9"
+  line-2: "#f2e9e1"
+  wash: "#f4ede8"
+  t1-iris: "#7a6496"
+  t1-wash: "#f1ecf6"
+  t2-pine: "#286983"
+  t2-wash: "#e6f0f3"
+  t3-gold: "#ea9d34"
+  t3-wash: "#fcf1df"
+  t4-rose: "#d7827e"
+  t4-wash: "#fbece9"
+  rubric: "#a2546b"
+  rubric-wash: "#f8e9ec"
+  ok: "#286983"
+  short-wash: "#ece5dd"
+  hol-ink: "#575279"
+  excluded: "#9893a5"
 typography:
   display:
     fontFamily: "Pretendard Variable, Pretendard, -apple-system, Apple SD Gothic Neo, Malgun Gothic, sans-serif"
@@ -99,7 +99,7 @@ components:
     rounded: "{rounded.base}"
     padding: "8px 14px"
   button-primary-hover:
-    backgroundColor: "#2e332e"
+    backgroundColor: "#48446a"
   button-sm:
     padding: "5px 10px"
     rounded: "{rounded.base}"
@@ -157,36 +157,36 @@ components:
 
 **Creative North Star: "교실 시간표판 (The Classroom Timetable Board)"**
 
-The app is a felt-green bulletin rail holding a white board, and everything on the board is read the way a teacher reads a timetable: day columns, period cells, ink-ruled grids. Schedules, hours and class lists sit in cells separated by 2px ink rules; each of the four tools owns one subject-paper color that appears only on its header band and in its data. Density is Operate-mode: 13-14px body, tabular numerals, tables and calendars that fill the board, no decoration between the user and the data.
+The app is a Rose Pine Dawn ink-indigo rail holding a cream board, and everything on the board is read the way a teacher reads a timetable: day columns, period cells, ink-ruled grids. Schedules, hours and class lists sit in cells separated by 2px ink rules; each of the four tools owns one subject-paper color that appears only on its header band and in its data. Density is Operate-mode: 13-14px body, tabular numerals, tables and calendars that fill the board, no decoration between the user and the data.
 
-State is carried by line shape before color: a solid line means confirmed, a dashed rubric line means a person must decide, a strike line means excluded. Computed shortfalls get their own tool-neutral mark (grey wash, ink text, ink underline) so the rubric red never means two things. The board is flat; depth comes from the green rail framing a pale board and from ink borders, not from shadows. The rejected default is the grey SaaS sidebar over a card grid.
+State is carried by line shape before color: a solid line means confirmed, a dashed rubric line means a person must decide, a strike line means excluded. Computed shortfalls get their own tool-neutral mark (grey wash, ink text, ink underline) so the rubric red never means two things. The board is flat; depth comes from the ink-indigo rail framing a cream board and from ink borders, not from shadows. The rejected default is the grey SaaS sidebar over a card grid.
 
 **Key Characteristics:**
-- Green rail (232px) framing a pale board with a 10px corner; board content on white paper cells.
+- Ink-indigo rail (232px) framing a cream board with a 10px corner; board content on warm paper cells. Palette is Rose Pine Dawn (user-pinned).
 - Grids drawn as 2px gaps over an ink background inside a 2px ink border.
 - Four tool colors used only for header bands, period-bar fills and tool data highlights.
-- One rubric red, dashed, reserved for human decisions, unresolved notations and rule violations.
+- One rubric (Rose Pine love), dashed, reserved for human decisions, unresolved notations and rule violations.
 - The 7-cell period bar is the shared signature across every tool.
 - Pretendard throughout, tabular numerals wherever numbers align.
 
 ## Colors
 
-A deep felt green and an ink-black on near-white paper, with four saturated subject colors and one rubric red held in strict reserve.
+Rose Pine Dawn, pinned by the user: an ink-indigo rail and ink on cream paper, with the four Rose Pine accents (iris, pine, gold, rose) as subject colors and love held in strict reserve as the rubric.
 
 ### Primary
-- **Felt Rail Green** (rail): the page ground and left rail; the frame every board sits in. Its deeper step (rail-deep) is the rail hover and the working-year plate.
+- **Ink Indigo Rail** (rail): the page ground and left rail; the frame every board sits in. Its deeper step (rail-deep) is the rail hover and the working-year plate.
 - **Timetable Ink** (ink): text, all grid rules and outer borders, the primary button fill, selected segment and selected student fill.
 
 ### Secondary
-- **Tool 01 Violet** (t1-violet): 학사일정. Violet, not red, so rubric red stays exclusive.
-- **Tool 02 Blue** (t2-blue): 시수계산. Also the focus-ring and link color.
-- **Tool 03 Green** (t3-green): 범교과 편성.
-- **Tool 04 Yellow** (t4-yellow): 반배정. The only tool color that carries ink text instead of white.
+- **Tool 01 Iris** (t1-iris): 학사일정.
+- **Tool 02 Pine** (t2-pine): 시수계산. Also the focus-ring, link and confirmed color.
+- **Tool 03 Gold** (t3-gold): 범교과 편성. Carries ink-dark (#2e2a45) text.
+- **Tool 04 Rose** (t4-rose): 반배정. Carries ink-dark (#2e2a45) text.
 - Each tool color has a pale wash (t1-wash … t4-wash) used for hover and selected rows inside that tool.
 
 ### Tertiary
-- **Rubric Red** (rubric): dashed borders and text for 사람이 정할 것, unresolved notations and rule violations; its wash (rubric-wash) is only the hover of those items and of the danger button.
-- **Confirmed Green** (ok): solid chips, completed step numbers and loaded-state text.
+- **Rubric Love** (rubric): dashed borders and text for 사람이 정할 것, unresolved notations and rule violations; its wash (rubric-wash) is only the hover of those items and of the danger button.
+- **Confirmed Pine** (ok): solid chips, completed step numbers and loaded-state text.
 
 ### Neutral
 - **Board** (board): the board surface and the active rail item.
@@ -196,12 +196,12 @@ A deep felt green and an ink-black on near-white paper, with four saturated subj
 - **Wash** (wash): table headers, notes, hover of neutral buttons.
 - **Shortfall Grey** (short-wash): background of computed shortfalls.
 - **Excluded Grey** (excluded): strike lines and excluded chips.
-- **Holiday Hatch**: a 135deg repeating stripe of #e2ede6 / #f3f8f4 (5px bands) with hol-ink text, marking holidays on the calendar.
+- **Holiday Hatch**: a 135deg repeating stripe of #ebe4ef / #f7f2f5 (5px bands) with hol-ink text, marking holidays on the calendar.
 
 ### Named Rules
-**The One Rubric Rule.** Rubric red, always dashed, marks only what a person must decide, unresolved notations, and rule violations. Nothing computed, decorative or branded uses it.
+**The One Rubric Rule.** Rubric love, always dashed, marks only what a person must decide, unresolved notations, and rule violations. Nothing computed, decorative or branded uses it.
 
-**The Shortfall Is Not a Decision Rule.** A computed shortfall uses Shortfall Grey with ink text and a 2px ink underline (cells) or a 1.5px ink border (chips). It is tool-neutral and never red or yellow.
+**The Shortfall Is Not a Decision Rule.** A computed shortfall uses Shortfall Grey with ink text and a 2px ink underline (cells) or a 1.5px ink border (chips). It is tool-neutral and never rubric or a tool color.
 
 **The Subject Paper Rule.** Tool colors appear only on that tool's header band, rail tab, period-bar fills and in-tool data highlights; never on generic buttons, text or chrome.
 
@@ -228,7 +228,7 @@ A deep felt green and an ink-black on near-white paper, with four saturated subj
 
 ## Layout
 
-A two-part shell: a sticky 232px green rail and a flexible board inset 14px from the top, right and bottom with a 10px corner. Home pads 36px 44px; tool screens stack a full-width color band (9px 28px), a head (22px 28px, ink 2px bottom rule) and a body (22px 28px 40px, 20px gaps).
+A two-part shell: a sticky 232px ink-indigo rail and a flexible board inset 14px from the top, right and bottom with a 10px corner. Home pads 36px 44px; tool screens stack a full-width color band (9px 28px), a head (22px 28px, ink 2px bottom rule) and a body (22px 28px 40px, 20px gaps).
 
 Grids (home timetable, input steps, class columns) are CSS grids with a 2px gap over an ink background inside a 2px ink border, so the dividers are the ink showing through. The home timetable is four equal columns; steps default to two; class columns are at least 170px. The schedule tool splits into calendar plus a 300px sticky panel. Spacing steps observed: 2, 6, 8, 12-14, 18-20, 24-28px.
 
@@ -236,7 +236,7 @@ Responsive: at 1100px the timetable drops to two columns and the split panel sta
 
 ## Elevation & Depth
 
-Flat. Depth comes from the green rail around the pale board and from ink borders; surfaces do not float. The only shadow is the transient toast.
+Flat. Depth comes from the ink-indigo rail around the cream board and from ink borders; surfaces do not float. The only shadow is the transient toast.
 
 ### Shadow Vocabulary
 - **Toast** (`box-shadow: 0 1px 2px rgb(26 29 26 / 0.06), 0 6px 18px -6px rgb(26 29 26 / 0.14)`): the bottom-center confirmation toast only.
@@ -253,12 +253,12 @@ Small, even corners: 6px for buttons, inputs, panels, tables and grids; 4px for 
 ### Buttons
 - **Shape:** 6px corners, 1.5px ink border.
 - **Default:** paper with ink text, 700 weight, 8px 14px; hover to wash; press nudges down 1px.
-- **Primary:** ink fill, white text; hover #2e332e. On home only the next-step CTA in the timetable is primary; tool screens use primary for the one run action of a setup step (배치하기, 계산하기, 나누기) and for the export action in the tool head.
+- **Primary:** ink fill, white text; hover #48446a. On home only the next-step CTA in the timetable is primary; tool screens use primary for the one run action of a setup step (배치하기, 계산하기, 나누기) and for the export action in the tool head.
 - **Small / Ghost / Danger:** small at 5px 10px and 13px; ghost has no border or fill until hover; danger is line-bordered and turns rubric only on hover. The irreversible 데이터 지우기 lives isolated at the bottom of the rail with a two-step confirm.
 
 ### Chips
 - **Style:** 4px corners, 1.5px border, 12.5px/700, paper background.
-- **Variants:** need (rubric dashed), ok (confirmed-green solid), quiet (line border, mute text), warn (ink border on Shortfall Grey), off (excluded grey with strike-through).
+- **Variants:** need (rubric dashed), ok (confirmed-pine solid), quiet (line border, mute text), warn (ink border on Shortfall Grey), off (excluded grey with strike-through).
 
 ### Count Badges
 - Small 4px badges (11px/800, tabular) beside segment labels and step titles: rubric dashed when the count is items a person must decide; the neutral variant (1.5px solid ink border, ink text) for plain counts.
@@ -270,7 +270,7 @@ Small, even corners: 6px for buttons, inputs, panels, tables and grids; 4px for 
 
 ### Inputs / Fields
 - **Style:** paper, 1.5px line border, 6px, min-height 36px (30px small).
-- **Focus:** border goes ink plus a 3px blue ring at 18% opacity; global focus-visible is a 2px blue outline offset 2px.
+- **Focus:** border goes ink plus a 3px pine ring at 20% opacity; global focus-visible is a 2px pine outline offset 2px.
 - **Error:** rubric text at 13px/600 with a leading alert icon.
 
 ### Navigation
@@ -280,7 +280,7 @@ Small, even corners: 6px for buttons, inputs, panels, tables and grids; 4px for 
 - 1.5px ink outline with ink dividers; pressed segment fills ink with white text.
 
 ### Tables and Calendar
-- Sticky wash header with a 1.5px ink bottom rule; 1px line-2 inner rules; tabular cells; row hover #f7f8f4; selected row in the tool wash.
+- Sticky wash header with a 1.5px ink bottom rule; 1px line-2 inner rules; tabular cells; row hover #f6f0ea; selected row in the tool wash.
 - Calendar: 2px ink frame, week number column in wash, holidays in the hatch, events as 12px rows with a hairline underline and a mini period bar; selected event fills the tool color; events needing a decision get a rubric dashed outline.
 
 ### Period Bar (signature)
@@ -300,8 +300,8 @@ Small, even corners: 6px for buttons, inputs, panels, tables and grids; 4px for 
 - **Do** keep the destructive data reset isolated in the rail behind a confirm.
 
 ### Don't:
-- **Don't** use rubric red for computed results, branding, or a tool color.
-- **Don't** mark computed shortfalls in red or yellow; use Shortfall Grey with an ink underline or border.
+- **Don't** use the rubric for computed results, branding, or a tool color.
+- **Don't** mark computed shortfalls in rubric or a tool color; use Shortfall Grey with an ink underline or border.
 - **Don't** spread tool colors onto generic buttons, links or chrome.
 - **Don't** separate content with drop shadows or floating cards.
 - **Don't** fall back to a grey SaaS sidebar with a card grid.

@@ -7,17 +7,17 @@ import { fmtPeriods } from './lib/interpret.js';
 export const TOOLS = [
   { id: 'schedule', n: '01', name: '학사일정', title: '연간 학사일정 자동생성', color: 'var(--t1)', wash: 'var(--t1-wash)' },
   { id: 'hours', n: '02', name: '시수계산', title: '시수계산', color: 'var(--t2)', wash: 'var(--t2-wash)' },
-  { id: 'required', n: '03', name: '범교과 편성', title: '범교과·필수교육 편성', color: 'var(--t3)', wash: 'var(--t3-wash)' },
-  { id: 'assign', n: '04', name: '반배정', title: '반배정', color: 'var(--t4)', wash: 'var(--t4-wash)', ink: 'var(--ink)' },
+  { id: 'required', n: '03', name: '범교과 편성', title: '범교과·필수교육 편성', color: 'var(--t3)', wash: 'var(--t3-wash)', ink: 'var(--ink-dark)' },
+  { id: 'assign', n: '04', name: '반배정', title: '반배정', color: 'var(--t4)', wash: 'var(--t4-wash)', ink: 'var(--ink-dark)' },
 ];
 export const toolById = (id) => TOOLS.find((t) => t.id === id);
 
 /** 시그니처: 행사·손실·편성이 차지하는 교시를 7칸으로 */
-export function PeriodBar({ periods = [], n = 7, color, large = false, label = true }) {
+export function PeriodBar({ periods = [], n = 7, color, ink, large = false, label = true }) {
   const set = new Set(periods);
   const text = periods.length ? `${fmtPeriods(periods)}교시` : '교시 없음';
   return (
-    <span className={'pbar' + (large ? ' lg' : '')} style={{ '--n': n, '--c': color }} role={label ? 'img' : undefined} aria-label={label ? text : undefined} aria-hidden={label ? undefined : true}>
+    <span className={'pbar' + (large ? ' lg' : '')} style={{ '--n': n, '--c': color, '--on': ink }} role={label ? 'img' : undefined} aria-label={label ? text : undefined} aria-hidden={label ? undefined : true}>
       {Array.from({ length: n }, (_, i) => <i key={i} className={set.has(i + 1) ? 'on' : ''}>{i + 1}</i>)}
     </span>
   );
